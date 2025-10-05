@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".AddTaskActivity">
+
+    <TextView
+        android:id="@+id/txtvTitle1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/title"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/txteTitle"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_margin="15dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_edittext"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtvTitle1" />
+
+    <TextView
+        android:id="@+id/txtvDescription2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/description"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtvTitle1"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="@+id/txtvTitle1"
+        app:layout_constraintTop_toBottomOf="@+id/txteTitle" />
+
+    <EditText
+        android:id="@+id/txteDescription"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/custom_edittext"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/txteTitle"
+        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintStart_toStartOf="@+id/txteTitle"
+        app:layout_constraintTop_toBottomOf="@+id/txtvDescription2" />
+
+    <TextView
+        android:id="@+id/txtvDate2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/date"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtvDescription2"
+        app:layout_constraintStart_toStartOf="@+id/txtvDescription2"
+        app:layout_constraintTop_toBottomOf="@+id/txteDescription" />
+
+    <EditText
+        android:id="@+id/datePicker"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/custom_edittext"
+        android:drawableRight="@drawable/calendar_view_icon"
+        android:ems="10"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textSize="15sp"
+        android:hint="Select Date"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/txteDescription"
+        app:layout_constraintStart_toStartOf="@+id/txteDescription"
+        app:layout_constraintTop_toBottomOf="@+id/txtvDate2" />
+
+    <TextView
+        android:id="@+id/txtvTime2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/time"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtvDate2"
+        app:layout_constraintStart_toStartOf="@+id/txtvDate2"
+        app:layout_constraintTop_toBottomOf="@+id/datePicker" />
+
+    <EditText
+        android:id="@+id/timePicker"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/custom_edittext"
+        android:drawableRight="@drawable/time_icon"
+        android:ems="10"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textSize="15sp"
+        android:hint="Select time"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/datePicker"
+        app:layout_constraintStart_toStartOf="@+id/datePicker"
+        app:layout_constraintTop_toBottomOf="@+id/txtvTime2" />
+
+    <RadioGroup
+        android:id="@+id/rgSchedType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@+id/timePicker"
+        app:layout_constraintStart_toStartOf="@+id/timePicker"
+        app:layout_constraintTop_toBottomOf="@+id/timePicker"
+        >
+
+        <RadioButton
+            android:id="@+id/rbOneTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/one_time"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginRight="30dp"
+            />
+
+        <RadioButton
+            android:id="@+id/rbDaily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/daily"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginLeft="30dp"
+            />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@color/purple"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/rgSchedType"
+        app:layout_constraintStart_toStartOf="@+id/rgSchedType"
+        app:layout_constraintTop_toBottomOf="@+id/rgSchedType" />
+
+    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
+    <Button
+        android:id="@+id/btnExportDB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Export SQLite"
+        app:layout_constraintEnd_toEndOf="@+id/btnSave"
+        app:layout_constraintStart_toStartOf="@+id/btnSave"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

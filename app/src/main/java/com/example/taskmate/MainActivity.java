@@ -1,5 +1,6 @@
 package com.example.taskmate;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         setContentView(R.layout.activity_main);
-
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -45,12 +45,13 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
 
+                // If listview was selected, display it's fragment.
                 if (id == R.id.listView) {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame, listViewFragment)
                             .commit();
                     return true;
-                } else if (id == R.id.calendarView) {
+                } else if (id == R.id.calendarView) { // Else, replace it with calendar view
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame, calendarViewFragment)
                             .commit();
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void openEmailApp() {
         String adminEmail = "freshbiteshomecooks@gmail.com";
         String subject = "App Feedback";
@@ -122,4 +124,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "No email app installed.", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }
