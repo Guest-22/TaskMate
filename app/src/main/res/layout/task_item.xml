@@ -15,28 +15,28 @@
         <LinearLayout
             android:id="@+id/leftPanel"
             android:layout_width="125dp"
-            android:layout_height="60dp"
-            android:background="@color/green"
+            android:layout_height="70dp"
+            android:background="@color/black"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtvTitle"
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
+                android:layout_height="36dp"
                 android:layout_marginHorizontal="6dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/title"
                 android:textColor="@color/white"
-                android:textSize="25sp" />
+                android:textSize="27sp" />
 
             <TextView
                 android:id="@+id/txtvDueDate"
                 android:layout_width="wrap_content"
-                android:layout_height="9dp"
+                android:layout_height="14dp"
                 android:layout_marginHorizontal="6dp"
-                android:text="Due on: "
+                android:text="@string/dueon"
                 android:textColor="@color/white"
-                android:textSize="6sp" />
+                android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/txtvDueTime"
@@ -44,10 +44,9 @@
                 android:layout_height="10dp"
                 android:layout_marginHorizontal="6dp"
                 android:layout_marginBottom="4dp"
+                android:text="@string/_12pm"
                 android:textColor="@color/white"
-                android:text="12:00PM"
-                android:textSize="5sp"
-                />
+                android:textSize="6sp" />
 
         </LinearLayout>
 
@@ -65,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/description"
                 android:textColor="@color/white"
-                android:textSize="12sp" />
+                android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

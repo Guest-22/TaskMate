@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +25,11 @@ public class ListViewFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    // Initializing variables.
+    private RecyclerView recyclerView;
+    private TaskAdapter taskAdapter;
+    private TaskDBHelper dbHelper;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -58,13 +66,12 @@ public class ListViewFragment extends Fragment {
         }
     }
 
+    /*
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // return inflater.inflate(R.layout.fragment_list_view, container, false);
-
-
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_view, container, false);
@@ -76,5 +83,59 @@ public class ListViewFragment extends Fragment {
         });
 
         return view;
-    }
+    }*/
+
+        // Called when the fragment's view is being created
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            // Inflate the layout XML file for this fragment and store it in a View object
+            View view = inflater.inflate(R.layout.fragment_list_view, container, false);
+
+            // Find the RecyclerView from the inflated layout
+            RecyclerView recyclerView = view.findViewById(R.id.rvListItem);
+
+            // Create an instance of the database helper to access stored tasks
+            TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+
+            // Retrieve all tasks from the database
+            List<Task> taskList = dbHelper.getAllTasks();
+
+            // Create a TaskAdapter using the retrieved task list
+            TaskAdapter adapter = new TaskAdapter(taskList);
+
+            // Set the adapter to the RecyclerView to display the tasks
+            recyclerView.setAdapter(adapter);
+
+            // Find the FloatingActionButton from the layout
+            FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
+
+            // Set a click listener on the FAB to open AddTaskActivity when clicked
+            fab.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), AddTaskActivity.class);
+                startActivity(intent); // Launch the activity to add a new task
+            });
+
+            // Return the fully prepared view to be displayed
+            return view;
+        }
+
+        // Called when the fragment becomes visible again (e.g., after returning from another activity)
+        @Override
+        public void onResume() {
+            super.onResume();
+    
+            // Re-fetch the RecyclerView from the current view
+            RecyclerView recyclerView = getView().findViewById(R.id.rvListItem);
+
+            // Re-initialize the database helper
+            TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+
+            // Re-fetch the updated list of tasks from the database
+            List<Task> taskList = dbHelper.getAllTasks();
+
+            // Re-bind the updated task list to the RecyclerView
+            recyclerView.setAdapter(new TaskAdapter(taskList));
+        }
 }

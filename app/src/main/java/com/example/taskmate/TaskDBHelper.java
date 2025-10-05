@@ -2,8 +2,12 @@ package com.example.taskmate;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TaskDBHelper extends SQLiteOpenHelper {
 
@@ -52,6 +56,36 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
+    // -------------------------------------------------------------------------------------------------------------------------
+    // Fetch all tasks from the database
+    // -------------------------------------------------------------------------------------------------------------------------
+        public List<Task> getAllTasks() {
+            List<Task> taskList = new ArrayList<>();
+            SQLiteDatabase db = this.getReadableDatabase();
+
+            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    // Fetch each column value
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE));
+                    String description = cursor.getString(cursor.getColumnIndexOrThrow(COL_DESCRIPTION));
+                    String date = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_DATE));
+                    String time = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_TIME));
+                    String scheduleType = cursor.getString(cursor.getColumnIndexOrThrow(COL_SCHEDULE_TYPE));
+
+                    // Create Task object and add to list
+                    taskList.add(new Task(title, description, date, time, scheduleType));
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+            db.close();
+
+            return taskList;
+        }
+    // -------------------------------------------------------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------------------------------------------------------
     // Delete method

@@ -123,7 +123,12 @@ public class AddTaskActivity extends AppCompatActivity {
 
             // Gets the selected option, either daily or one-time (default: one-time).
             int selectedId = rgSchedType.getCheckedRadioButtonId();
-            String scheduleType = (selectedId == rbDaily.getId()) ? "One-time" : "Daily";
+            String scheduleType;
+            if (selectedId == rbOneTime.getId()) {
+                scheduleType = "One-time";  // Default
+            } else {
+                scheduleType = "Daily";
+            }
 
             // Handles empty inputs; show error message pop-up.
             if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {

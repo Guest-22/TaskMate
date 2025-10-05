@@ -9,4 +9,6 @@
     <string name="save">Save</string>
     <string name="one_time">One-Time</string>
     <string name="daily">Daily</string>
+    <string name="dueon">"Due on: "</string>
+    <string name="_12pm">12:00PM</string>
 </resources>
