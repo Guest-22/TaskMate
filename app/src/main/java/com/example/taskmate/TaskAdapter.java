@@ -48,9 +48,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         // -------------------------------------------------------------------------------------------------------------------------
         // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
-        // Set color based on schedule type: daily = blue & one-time = green.
+        // Set color based on schedule type: weekly = blue & one-time = green.
         Context context = holder.itemView.getContext();
-        if (task.getType().equalsIgnoreCase("Daily")) {
+        if (task.getType().equalsIgnoreCase("Weekly")) {
             holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.blue));
         } else {
             holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.green));

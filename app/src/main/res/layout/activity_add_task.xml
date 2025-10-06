@@ -32,6 +32,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_edittext"
+        android:hint="@string/enter_task_title"
         android:ems="10"
         android:inputType="text"
         android:labelFor="@id/txtvTitle1"
@@ -59,6 +60,7 @@
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/custom_edittext"
+        android:hint="@string/enter_task_description"
         android:ems="10"
         android:inputType="text"
         android:labelFor="@id/txtvDescription2"
@@ -91,7 +93,7 @@
         android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:hint="select_date"
+        android:hint="@string/select_date"
         android:inputType="text"
         android:labelFor="@id/txtvDate2"
         android:textSize="15sp"
@@ -150,11 +152,11 @@
             android:textSize="16sp" />
 
         <RadioButton
-            android:id="@+id/rbDaily"
+            android:id="@+id/rbWeekly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:text="@string/daily"
+            android:text="@string/weekly"
             android:textColor="@color/white"
             android:textSize="16sp" />
     </RadioGroup>
@@ -165,10 +167,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/green"
-        android:textSize="18sp"
         android:text="@string/save"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@+id/timePicker"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/btnDelete"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="@+id/timePicker"
         app:layout_constraintTop_toBottomOf="@+id/rgSchedType" />
 
@@ -176,26 +180,30 @@
         android:id="@+id/btnDelete"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:visibility="gone"
         android:backgroundTint="@color/red"
         android:text="@string/delete"
         android:textColor="@color/white"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/btnSave"
-        app:layout_constraintStart_toStartOf="@+id/btnSave"
-        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+        android:textSize="16sp"
+
+        app:layout_constraintEnd_toEndOf="@+id/timePicker"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnSave"
+        app:layout_constraintTop_toTopOf="@+id/btnSave" />
 
     <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
     <Button
         android:id="@+id/btnExportDB"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:backgroundTint="@color/yellow"
         android:text="Export SQLite"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/btnSave"
-        app:layout_constraintStart_toStartOf="@+id/btnSave"
-        app:layout_constraintTop_toBottomOf="@+id/btnDelete" />
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/timePicker"
+        app:layout_constraintStart_toStartOf="@+id/timePicker"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
     <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

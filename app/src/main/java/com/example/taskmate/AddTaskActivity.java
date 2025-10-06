@@ -2,16 +2,13 @@ package com.example.taskmate;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -39,7 +36,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
     private EditText txteTitle, txteDescription, datePicker, timePicker;
     private RadioGroup rgSchedType;
-    private RadioButton rbOneTime, rbDaily;
+    private RadioButton rbOneTime, rbWeekly;
     private Button btnSave, btnExportDB, btnDelete;
 
     @Override
@@ -61,7 +58,7 @@ public class AddTaskActivity extends AppCompatActivity {
         timePicker = findViewById(R.id.timePicker);
         rgSchedType = findViewById(R.id.rgSchedType);
         rbOneTime = findViewById(R.id.rbOneTime);
-        rbDaily = findViewById(R.id.rbDaily);
+        rbWeekly = findViewById(R.id.rbWeekly);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
 
@@ -90,10 +87,11 @@ public class AddTaskActivity extends AppCompatActivity {
         boolean isEdit = getIntent().getBooleanExtra("isEdit", false);
 
         if (isEdit) {
-            // Change button text
-            btnSave.setText("Update Task");
+            // Change button text and sets the title to Edit Task.
+            btnSave.setText("Update");
+            getSupportActionBar().setTitle("Edit Task");
 
-            // Get data from Intent and pre-fill UI
+            // Get data from Intent and pre-fill input fields/EditText.
             int taskId = getIntent().getIntExtra("taskId", -1);
             String title = getIntent().getStringExtra("title");
             String description = getIntent().getStringExtra("description");
@@ -107,8 +105,8 @@ public class AddTaskActivity extends AppCompatActivity {
             timePicker.setText(time);
 
             // Set RadioButton selection
-            if ("Daily".equalsIgnoreCase(scheduleType)) {
-                rbDaily.setChecked(true);
+            if ("Weekly".equalsIgnoreCase(scheduleType)) {
+                rbWeekly.setChecked(true);
             } else {
                 rbOneTime.setChecked(true);
             }
@@ -122,7 +120,7 @@ public class AddTaskActivity extends AppCompatActivity {
                 String newTime = timePicker.getText().toString().trim();
 
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
-                String newScheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Daily";
+                String newScheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
 
                 if (newTitle.isEmpty() || newDescription.isEmpty() || newDate.isEmpty() || newTime.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
@@ -188,7 +186,7 @@ public class AddTaskActivity extends AppCompatActivity {
                 String time = timePicker.getText().toString().trim();
 
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
-                String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Daily";
+                String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
 
                 if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
