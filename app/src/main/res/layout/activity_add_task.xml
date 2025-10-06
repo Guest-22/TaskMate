@@ -34,6 +34,7 @@
         android:background="@drawable/custom_edittext"
         android:ems="10"
         android:inputType="text"
+        android:labelFor="@id/txtvTitle1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,6 +61,7 @@
         android:background="@drawable/custom_edittext"
         android:ems="10"
         android:inputType="text"
+        android:labelFor="@id/txtvDescription2"
         app:layout_constraintEnd_toEndOf="@+id/txteTitle"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="@+id/txteTitle"
@@ -83,15 +85,16 @@
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/custom_edittext"
-        android:drawableRight="@drawable/calendar_view_icon"
-        android:ems="10"
         android:clickable="false"
         android:cursorVisible="false"
+        android:drawableRight="@drawable/calendar_view_icon"
+        android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:textSize="15sp"
-        android:hint="Select Date"
+        android:hint="select_date"
         android:inputType="text"
+        android:labelFor="@id/txtvDate2"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="@+id/txteDescription"
         app:layout_constraintStart_toStartOf="@+id/txteDescription"
         app:layout_constraintTop_toBottomOf="@+id/txtvDate2" />
@@ -114,15 +117,16 @@
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/custom_edittext"
-        android:drawableRight="@drawable/time_icon"
-        android:ems="10"
         android:clickable="false"
         android:cursorVisible="false"
+        android:drawableRight="@drawable/time_icon"
+        android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:textSize="15sp"
-        android:hint="Select time"
+        android:hint="@string/select_time"
         android:inputType="text"
+        android:labelFor="@id/txtvTime2"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="@+id/datePicker"
         app:layout_constraintStart_toStartOf="@+id/datePicker"
         app:layout_constraintTop_toBottomOf="@+id/txtvTime2" />
@@ -157,26 +161,41 @@
 
     <Button
         android:id="@+id/btnSave"
-        android:layout_width="125dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:background="@color/purple"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/green"
+        android:textSize="18sp"
         android:text="@string/save"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/timePicker"
         app:layout_constraintStart_toStartOf="@+id/timePicker"
         app:layout_constraintTop_toBottomOf="@+id/rgSchedType" />
 
-    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
     <Button
-        android:id="@+id/btnExportDB"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnDelete"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Export SQLite"
+        android:backgroundTint="@color/red"
+        android:text="@string/delete"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/btnSave"
         app:layout_constraintStart_toStartOf="@+id/btnSave"
         app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+
+    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
+    <Button
+        android:id="@+id/btnExportDB"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/yellow"
+        android:text="Export SQLite"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/btnSave"
+        app:layout_constraintStart_toStartOf="@+id/btnSave"
+        app:layout_constraintTop_toBottomOf="@+id/btnDelete" />
     <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

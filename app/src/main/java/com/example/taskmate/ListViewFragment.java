@@ -85,57 +85,57 @@ public class ListViewFragment extends Fragment {
         return view;
     }*/
 
-        // Called when the fragment's view is being created
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+    // Called when the fragment's view is being created
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-            // Inflate the layout XML file for this fragment and store it in a View object
-            View view = inflater.inflate(R.layout.fragment_list_view, container, false);
+        // Inflate the layout XML file for this fragment and store it in a View object
+        View view = inflater.inflate(R.layout.fragment_list_view, container, false);
 
-            // Find the RecyclerView from the inflated layout
-            RecyclerView recyclerView = view.findViewById(R.id.rvListItem);
+        // Find the RecyclerView from the inflated layout
+        RecyclerView recyclerView = view.findViewById(R.id.rvListItem);
 
-            // Create an instance of the database helper to access stored tasks
-            TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+        // Create an instance of the database helper to access stored tasks
+        TaskDBHelper dbHelper = new TaskDBHelper(getContext());
 
-            // Retrieve all tasks from the database
-            List<Task> taskList = dbHelper.getAllTasks();
+        // Retrieve all tasks from the database
+        List<Task> taskList = dbHelper.getAllTasks();
 
-            // Create a TaskAdapter using the retrieved task list
-            TaskAdapter adapter = new TaskAdapter(taskList);
+        // Create a TaskAdapter using the retrieved task list
+        TaskAdapter adapter = new TaskAdapter(taskList);
 
-            // Set the adapter to the RecyclerView to display the tasks
-            recyclerView.setAdapter(adapter);
+        // Set the adapter to the RecyclerView to display the tasks
+        recyclerView.setAdapter(adapter);
 
-            // Find the FloatingActionButton from the layout
-            FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
+        // Find the FloatingActionButton from the layout
+        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
 
-            // Set a click listener on the FAB to open AddTaskActivity when clicked
-            fab.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(), AddTaskActivity.class);
-                startActivity(intent); // Launch the activity to add a new task
-            });
+        // Set a click listener on the FAB to open AddTaskActivity when clicked
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AddTaskActivity.class);
+            startActivity(intent); // Launch the activity to add a new task
+        });
 
-            // Return the fully prepared view to be displayed
-            return view;
-        }
+        // Return the fully prepared view to be displayed
+        return view;
+    }
 
-        // Called when the fragment becomes visible again (e.g., after returning from another activity)
-        @Override
-        public void onResume() {
-            super.onResume();
-    
-            // Re-fetch the RecyclerView from the current view
-            RecyclerView recyclerView = getView().findViewById(R.id.rvListItem);
+    // Called when the fragment becomes visible again (e.g., after returning from another activity)
+    @Override
+    public void onResume() {
+        super.onResume();
 
-            // Re-initialize the database helper
-            TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+        // Re-fetch the RecyclerView from the current view
+        RecyclerView recyclerView = getView().findViewById(R.id.rvListItem);
 
-            // Re-fetch the updated list of tasks from the database
-            List<Task> taskList = dbHelper.getAllTasks();
+        // Re-initialize the database helper
+        TaskDBHelper dbHelper = new TaskDBHelper(getContext());
 
-            // Re-bind the updated task list to the RecyclerView
-            recyclerView.setAdapter(new TaskAdapter(taskList));
-        }
+        // Re-fetch the updated list of tasks from the database
+        List<Task> taskList = dbHelper.getAllTasks();
+
+        // Re-bind the updated task list to the RecyclerView
+        recyclerView.setAdapter(new TaskAdapter(taskList));
+    }
 }

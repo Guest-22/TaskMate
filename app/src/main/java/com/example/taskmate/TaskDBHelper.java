@@ -58,38 +58,55 @@ public class TaskDBHelper extends SQLiteOpenHelper {
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
-    // Fetch all tasks from the database
-    // -------------------------------------------------------------------------------------------------------------------------
-        public List<Task> getAllTasks() {
-            List<Task> taskList = new ArrayList<>();
-            SQLiteDatabase db = this.getReadableDatabase();
+    // Fetch/Retrieve all tasks info from the DB.
+    public List<Task> getAllTasks() {
+        List<Task> taskList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
 
-            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
 
-            if (cursor.moveToFirst()) {
-                do {
-                    // Fetch each column value
-                    String title = cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE));
-                    String description = cursor.getString(cursor.getColumnIndexOrThrow(COL_DESCRIPTION));
-                    String date = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_DATE));
-                    String time = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_TIME));
-                    String scheduleType = cursor.getString(cursor.getColumnIndexOrThrow(COL_SCHEDULE_TYPE));
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(COL_DESCRIPTION));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_DATE));
+                String time = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_TIME));
+                String scheduleType = cursor.getString(cursor.getColumnIndexOrThrow(COL_SCHEDULE_TYPE));
 
-                    // Create Task object and add to list
-                    taskList.add(new Task(title, description, date, time, scheduleType));
-                } while (cursor.moveToNext());
-            }
-
-            cursor.close();
-            db.close();
-
-            return taskList;
+                taskList.add(new Task(id, title, description, date, time, scheduleType));
+            } while (cursor.moveToNext());
         }
+
+        cursor.close();
+        db.close();
+
+        return taskList;
+    }
     // -------------------------------------------------------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------------------------------------------------------
-    // Delete method
-    // UNDER PROGRESS.
+    // Update an existing task using its ID.
+        public void updateTask(int id, String title, String description, String date, String time, String scheduleType) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COL_TITLE, title);
+            values.put(COL_DESCRIPTION, description);
+            values.put(COL_DUE_DATE, date);
+            values.put(COL_DUE_TIME, time);
+            values.put(COL_SCHEDULE_TYPE, scheduleType);
 
+            // UPDATE tasks SET title=?, description=?, ... WHERE id = ?
+            db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(id)});
+            db.close();
+        }
+
+    // -------------------------------------------------------------------------------------------------------------------------
+    // Delete a task by its ID.
+        public void deleteTask(int id) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(id)});
+            db.close();
+        }
     // -------------------------------------------------------------------------------------------------------------------------
 }

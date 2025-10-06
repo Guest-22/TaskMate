@@ -40,7 +40,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private EditText txteTitle, txteDescription, datePicker, timePicker;
     private RadioGroup rgSchedType;
     private RadioButton rbOneTime, rbDaily;
-    private Button btnSave, btnExportDB;
+    private Button btnSave, btnExportDB, btnDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +63,7 @@ public class AddTaskActivity extends AppCompatActivity {
         rbOneTime = findViewById(R.id.rbOneTime);
         rbDaily = findViewById(R.id.rbDaily);
         btnSave = findViewById(R.id.btnSave);
+        btnDelete = findViewById(R.id.btnDelete);
 
         rbOneTime.setChecked(true); // Automatically sets one-time as default selected option
         // -------------------------------------------------------------------------------------------------------------------------
@@ -83,6 +84,71 @@ public class AddTaskActivity extends AppCompatActivity {
 
         // Initialize an instance of TaskDBHelper class to use its methods of SQLite data manipulation (e.g., insert & delete).
         TaskDBHelper dbHelper = new TaskDBHelper(this);
+
+        // ------------------------------------------------------------
+        // Check if this activity was opened for EDIT MODE
+        boolean isEdit = getIntent().getBooleanExtra("isEdit", false);
+
+        if (isEdit) {
+            // Change button text
+            btnSave.setText("Update Task");
+
+            // Get data from Intent and pre-fill UI
+            int taskId = getIntent().getIntExtra("taskId", -1);
+            String title = getIntent().getStringExtra("title");
+            String description = getIntent().getStringExtra("description");
+            String date = getIntent().getStringExtra("date");
+            String time = getIntent().getStringExtra("time");
+            String scheduleType = getIntent().getStringExtra("scheduleType");
+
+            txteTitle.setText(title);
+            txteDescription.setText(description);
+            datePicker.setText(date);
+            timePicker.setText(time);
+
+            // Set RadioButton selection
+            if ("Daily".equalsIgnoreCase(scheduleType)) {
+                rbDaily.setChecked(true);
+            } else {
+                rbOneTime.setChecked(true);
+            }
+
+            // ------------------------------------------------------------
+            // Override save button to update instead of insert
+            btnSave.setOnClickListener(v -> {
+                String newTitle = txteTitle.getText().toString().trim();
+                String newDescription = txteDescription.getText().toString().trim();
+                String newDate = datePicker.getText().toString().trim();
+                String newTime = timePicker.getText().toString().trim();
+
+                int selectedId = rgSchedType.getCheckedRadioButtonId();
+                String newScheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Daily";
+
+                if (newTitle.isEmpty() || newDescription.isEmpty() || newDate.isEmpty() || newTime.isEmpty()) {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                } else {
+                    dbHelper.updateTask(taskId, newTitle, newDescription, newDate, newTime, newScheduleType);
+                    Toast.makeText(this, "Task updated successfully!", Toast.LENGTH_SHORT).show();
+                    finish(); // Close and return to list
+                }
+            });
+
+            // Delete button
+            btnDelete.setVisibility(View.VISIBLE);
+            btnDelete.setOnClickListener(v -> {
+                new android.app.AlertDialog.Builder(this)
+                    .setTitle("Confirm Delete")
+                    .setMessage("Are you sure you want to delete this task?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        dbHelper.deleteTask(taskId);
+                        Toast.makeText(this, "Task deleted successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            });
+        }
+        // -------------------------------------------------------------------------------------------------------------------------
 
         // Handle date picker.
         // Credits: KDTechs (How to Create a Date And Time Picker From EditText in Android Studio + Source Code).
@@ -113,38 +179,31 @@ public class AddTaskActivity extends AppCompatActivity {
             timePickerDialog.show();
         });
 
-        // When 'Save' button is pressed, do this action.
-        btnSave.setOnClickListener(v -> {
-            // Gets all the values from input fields/EditTexts.
-            String title = txteTitle.getText().toString().trim();
-            String description = txteDescription.getText().toString().trim();
-            String date = datePicker.getText().toString().trim();
-            String time = timePicker.getText().toString().trim();
+        // When 'Save' button is pressed, do this action. (Only applies if not in edit mode)
+        if (!isEdit) {
+            btnSave.setOnClickListener(v -> {
+                String title = txteTitle.getText().toString().trim();
+                String description = txteDescription.getText().toString().trim();
+                String date = datePicker.getText().toString().trim();
+                String time = timePicker.getText().toString().trim();
 
-            // Gets the selected option, either daily or one-time (default: one-time).
-            int selectedId = rgSchedType.getCheckedRadioButtonId();
-            String scheduleType;
-            if (selectedId == rbOneTime.getId()) {
-                scheduleType = "One-time";  // Default
-            } else {
-                scheduleType = "Daily";
-            }
+                int selectedId = rgSchedType.getCheckedRadioButtonId();
+                String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Daily";
 
-            // Handles empty inputs; show error message pop-up.
-            if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-            } else { // Inserts the value inside the DB; calls out insertTask method of TaskDBHelper class.
-                dbHelper.insertTask(title, description, date, time, scheduleType);
-                Toast.makeText(this, "Task saved successfully!", Toast.LENGTH_SHORT).show();
+                if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                } else {
+                    dbHelper.insertTask(title, description, date, time, scheduleType);
+                    Toast.makeText(this, "Task saved successfully!", Toast.LENGTH_SHORT).show();
 
-                // After inserting, clear all fields.
-                txteTitle.setText("");
-                txteDescription.setText("");
-                datePicker.setText("");
-                timePicker.setText("");
-                rbOneTime.setChecked(true);
-            }
-        });
+                    txteTitle.setText("");
+                    txteDescription.setText("");
+                    datePicker.setText("");
+                    timePicker.setText("");
+                    rbOneTime.setChecked(true);
+                }
+            });
+        }
     }
 
     // Converts the current Calendar date into a formatted string like "2025-10-05" (Year, Month, Day_of_Month).

@@ -1,6 +1,7 @@
 package com.example.taskmate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,8 +55,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         } else {
             holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
         }
-        // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
+
         // -------------------------------------------------------------------------------------------------------------------------
+        // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
+        // Inside onBindViewHolder:
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, AddTaskActivity.class);
+
+            // Pass full task data
+            intent.putExtra("isEdit", true);
+            intent.putExtra("taskId", task.getId());
+            intent.putExtra("title", task.getTitle());
+            intent.putExtra("description", task.getDescription());
+            intent.putExtra("date", task.getDate());
+            intent.putExtra("time", task.getTime());
+            intent.putExtra("scheduleType", task.getType());
+
+            context.startActivity(intent);
+        });
     }
 
     // Returns the total number of items in the list
