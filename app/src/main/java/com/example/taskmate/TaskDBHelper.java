@@ -53,12 +53,13 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         values.put(COL_DUE_DATE, date);
         values.put(COL_DUE_TIME, time);
         values.put(COL_SCHEDULE_TYPE, scheduleType);
+
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
-    // Fetch/Retrieve all tasks info from the DB.
+    // Fetch/Retrieve all tasks info from the DB; return type (List).
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -102,11 +103,34 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         }
 
     // -------------------------------------------------------------------------------------------------------------------------
-    // Delete a task by its ID.
+    // Deletes task by referencing its ID.
         public void deleteTask(int id) {
             SQLiteDatabase db = this.getWritableDatabase();
             db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(id)});
             db.close();
         }
     // -------------------------------------------------------------------------------------------------------------------------
+    public int getLastInsertedId() {
+        int id = -1;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT last_insert_rowid()", null);
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return id;
+    }
+
+    public String getScheduleType(int taskId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT scheduleType FROM " + TABLE_NAME + " WHERE id = ?", new String[]{String.valueOf(taskId)});
+        if (cursor.moveToFirst()) {
+            String type = cursor.getString(0);
+            cursor.close();
+            return type;
+        }
+        cursor.close();
+        return "One-time"; // default fallback
+    }
 }

@@ -1,7 +1,9 @@
 package com.example.taskmate;
 
 import android.app.DatePickerDialog;
+import android.app.NotificationManager;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -121,11 +123,14 @@ public class AddTaskActivity extends AppCompatActivity {
 
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
                 String newScheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
+                boolean isWeekly = newScheduleType.equalsIgnoreCase("Weekly"); //
 
                 if (newTitle.isEmpty() || newDescription.isEmpty() || newDate.isEmpty() || newTime.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 } else {
                     dbHelper.updateTask(taskId, newTitle, newDescription, newDate, newTime, newScheduleType);
+                    AlarmScheduler.cancelAlarm(this, taskId);
+                    AlarmScheduler.scheduleAlarm(this, taskId, newTitle, newDescription, newDate, newTime, isWeekly);
                     Toast.makeText(this, "Task updated successfully!", Toast.LENGTH_SHORT).show();
                     finish(); // Close and return to list
                 }
@@ -138,7 +143,13 @@ public class AddTaskActivity extends AppCompatActivity {
                     .setTitle("Confirm Delete")
                     .setMessage("Are you sure you want to delete this task?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        dbHelper.deleteTask(taskId);
+
+                        // Removes/cancels upcoming notification.
+                        AlarmScheduler.cancelAlarm(this, taskId);
+                        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        manager.cancel(taskId);
+
+                        dbHelper.deleteTask(taskId); // Deletes task record.
                         Toast.makeText(this, "Task deleted successfully!", Toast.LENGTH_SHORT).show();
                         finish();
                     })
@@ -187,11 +198,15 @@ public class AddTaskActivity extends AppCompatActivity {
 
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
                 String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
+                boolean isWeekly = scheduleType.equalsIgnoreCase("Weekly");
 
                 if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 } else {
                     dbHelper.insertTask(title, description, date, time, scheduleType);
+                    int taskId = dbHelper.getLastInsertedId();
+                    AlarmScheduler.scheduleAlarm(this, taskId, title, description, date, time, isWeekly);
+
                     Toast.makeText(this, "Task saved successfully!", Toast.LENGTH_SHORT).show();
 
                     txteTitle.setText("");
