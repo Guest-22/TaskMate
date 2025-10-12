@@ -30,6 +30,7 @@ public class Task {
         this.type = type;
     }
 
+    // Getter methods.
     public int getId() {
         return id;
     }

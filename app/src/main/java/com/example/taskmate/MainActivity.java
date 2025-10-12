@@ -74,30 +74,31 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_nav_menu, menu);
 
-        // Find the search item from the menu
+        /* DISABLED SEARCH OPTION; FOR FUTURE UPDATES.
+        // Finds the search item from the menu.
         MenuItem searchItem = menu.findItem(R.id.search);
         androidx.appcompat.widget.SearchView searchView =
                 (androidx.appcompat.widget.SearchView) searchItem.getActionView();
 
-        // Placeholder text
+        // Hint/Guide text.
         searchView.setQueryHint("Search");
 
-        // Listener for typing or submitting
+        // Listener for typing or submitting.
         searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // For now, just show a toast with typed text
+                // For now, just show a toast with the query message.
                 Toast.makeText(MainActivity.this, "You typed: " + query, Toast.LENGTH_SHORT).show();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // You can handle live search here if you want
+                // Handles live search here.
                 return false;
             }
         });
-
+        */
         return true;
     }
 
@@ -111,25 +112,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Opens the Email app with a message template.
     private void openEmailApp() {
-        String adminEmail = "freshbiteshomecooks@gmail.com";
+        String adminEmail = "freshbiteshomecooks@gmail.com"; // Receiver; dummy account.
         String subject = "App Feedback";
         String message = "Hey! Got some feedback:\n";
 
-        // Encode subject and body
+        // Subject and body template.
         String uriText = "mailto:" + adminEmail +
-                "?subject=" + Uri.encode(subject) +
-                "&body=" + Uri.encode(message);
+                        "?subject=" + Uri.encode(subject) +
+                        "&body=" + Uri.encode(message);
 
         Uri uri = Uri.parse(uriText);
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, uri);
 
         try {
-            startActivity(Intent.createChooser(emailIntent, "Send feedback via email"));
+            startActivity(Intent.createChooser(emailIntent, "Send feedback via email")); // Allows user to choose an Email app of their likings.
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, "No email app installed.", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 }

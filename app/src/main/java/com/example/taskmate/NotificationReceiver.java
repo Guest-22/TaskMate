@@ -120,6 +120,5 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.d("NotificationReceiver", "Rescheduled weekly alarm for taskId: " + taskId + " at " + nextWeek.getTime());
         }
-        // ()NEWCODE
     }
 }

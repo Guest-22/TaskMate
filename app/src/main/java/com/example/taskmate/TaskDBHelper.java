@@ -11,10 +11,11 @@ import java.util.List;
 
 public class TaskDBHelper extends SQLiteOpenHelper {
 
+    // INITIALIZING FINAL SQLITE STRUCTURE.
     private static final String DB_NAME = "taskmate.db";
     private static final int DB_VERSION = 1;
     public static final String TABLE_NAME = "tasks";
-    public static final String COL_ID = "id";
+    public static final String COL_ID = "id"; // Primary key.
     public static final String COL_TITLE = "title";
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_DUE_DATE = "due_date";
@@ -25,10 +26,11 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
-    // Creates the table
+    // Creates the table.
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
+        String createTable =
+                "CREATE TABLE " + TABLE_NAME + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_TITLE + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
@@ -45,7 +47,7 @@ public class TaskDBHelper extends SQLiteOpenHelper {
     }
 
     /*
-    // Insert method.
+    // Old insert method.
     public void insertTask(String title, String description, String date, String time, String scheduleType) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -59,7 +61,8 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         db.close();
     }
      */
-    // Insert method that returns the inserted task's ID
+
+    // Insert method that returns the inserted task's ID.
         public long insertTask(String title, String description, String date, String time, String scheduleType) {
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -71,9 +74,9 @@ public class TaskDBHelper extends SQLiteOpenHelper {
 
             long taskId = db.insert(TABLE_NAME, null, values);
             db.close();
-            return taskId;  // <-- return the generated ID
+            return taskId;  // Return the generated ID.
         }
-    // -------------------------------------------------------------------------------------------------------------------------
+
     // Fetch/Retrieve all tasks info from the DB; return type (List).
     public List<Task> getAllTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -93,15 +96,11 @@ public class TaskDBHelper extends SQLiteOpenHelper {
                 taskList.add(new Task(id, title, description, date, time, scheduleType));
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         db.close();
-
         return taskList;
     }
-    // -------------------------------------------------------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------------------------------------
     // Update an existing task using its ID.
         public void updateTask(int id, String title, String description, String date, String time, String scheduleType) {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -117,16 +116,14 @@ public class TaskDBHelper extends SQLiteOpenHelper {
             db.close();
         }
 
-    // -------------------------------------------------------------------------------------------------------------------------
-    // Deletes task by referencing its ID.
+    // Deletes existing task by referencing its ID.
         public void deleteTask(int id) {
             SQLiteDatabase db = this.getWritableDatabase();
             db.delete(TABLE_NAME, COL_ID + " = ?", new String[]{String.valueOf(id)});
             db.close();
         }
-    // -------------------------------------------------------------------------------------------------------------------------
-    // Optional helper: get schedule type for a specific task id (used by NotificationReceiver)
-    // ()NEWCODE
+
+    // Gets the scheduled type for a specific task id (used by NotificationReceiver).
     public String getScheduleType(int id) {
         String result = "";
         SQLiteDatabase db = this.getReadableDatabase();
@@ -138,9 +135,8 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         db.close();
         return result;
     }
-    // ()NEWCODE
 
-    // ()NEWCODE - Get the time string (e.g., "12:00 PM") for a specific task
+    // Gets the time string (e.g., "12:00 PM") for a specific task
     public String getTaskTime(int taskId) {
         String time = null;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -156,5 +152,4 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         db.close();
         return time;
     }
-// ()NEWCODE
 }

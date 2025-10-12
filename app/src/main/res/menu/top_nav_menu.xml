@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- DISABLED SEARCH OPTION; FOR FUTURE UPDATES.
     <item
         android:id="@+id/search"
         android:title="Search"
@@ -8,6 +10,8 @@
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         />
+        -->
+
     <item
         android:id="@+id/feedback"
         android:title="Feedback" />

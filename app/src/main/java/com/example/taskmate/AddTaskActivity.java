@@ -39,7 +39,7 @@ public class AddTaskActivity extends AppCompatActivity {
     // Requesting for notification permission (Unique ID per permission req).
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
 
-    // Declaring variables.
+    // Declaring all variables.
     TimePickerDialog timePickerDialog;
     Calendar calendar = Calendar.getInstance();
     int currentHour;
@@ -50,7 +50,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private RadioGroup rgSchedType;
     private RadioButton rbOneTime, rbWeekly;
     private Button btnSave, btnExportDB, btnDelete;
-    private Toast activeToast;
+    private Toast activeToast; // For preventing toast stacks; removes the current toast & replace with a new toast message.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,26 +77,27 @@ public class AddTaskActivity extends AppCompatActivity {
 
         rbOneTime.setChecked(true); // Automatically sets one-time as default selected option
         // -------------------------------------------------------------------------------------------------------------------------
-        // MUST BE REMOVE IN FUTURE UPDATES.
+        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
         btnExportDB = findViewById(R.id.btnExportDB); // Export SQLiteDB button
-        // MUST BE REMOVE IN FUTURE UPDATES.
+        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
         // -------------------------------------------------------------------------------------------------------------------------
 
         // -------------------------------------------------------------------------------------------------------------------------
-        // MUST BE REMOVE IN FUTURE UPDATES.
+        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
         // Export SQLiteDB button logic
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 1002);
         btnExportDB.setOnClickListener(v -> exportDatabaseToDownload());
-        // MUST BE REMOVE IN FUTURE UPDATES.
+        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
         // -------------------------------------------------------------------------------------------------------------------------
 
-        // Initialize an instance of TaskDBHelper class to use its methods of SQLite data manipulation (e.g., insert & delete).
+        // Creating an instance of TaskDBHelper class to use SQLite operations (i.e., CRUD Operations).
         TaskDBHelper dbHelper = new TaskDBHelper(this);
 
-        // ------------------------------------------------------------
-        // Check if this activity was opened for EDIT MODE
+        // -------------------------------------------------------------------------------------------------------------------------
+        // EDIT MODE; OVERRIDES ADD TASK'S LAYOUT.
+        // Checks if this activity was opened for EDIT MODE.
         boolean isEdit = getIntent().getBooleanExtra("isEdit", false);
 
         if (isEdit) {
@@ -117,15 +118,14 @@ public class AddTaskActivity extends AppCompatActivity {
             datePicker.setText(date);
             timePicker.setText(time);
 
-            // Set RadioButton selection
+            // Set RadioButton selection.
             if ("Weekly".equalsIgnoreCase(scheduleType)) {
                 rbWeekly.setChecked(true);
             } else {
                 rbOneTime.setChecked(true);
             }
 
-            // ------------------------------------------------------------
-            // Override save button to update instead of insert
+            // Override save button to update instead of insert.
             btnSave.setOnClickListener(v -> {
                 String newTitle = txteTitle.getText().toString().trim();
                 String newDescription = txteDescription.getText().toString().trim();
@@ -176,8 +176,11 @@ public class AddTaskActivity extends AppCompatActivity {
                     .show();
             });
         }
+        // EDIT MODE; OVERRIDES ADD TASK'S LAYOUT.
         // -------------------------------------------------------------------------------------------------------------------------
 
+        // -------------------------------------------------------------------------------------------------------------------------
+        // DATE PICKER & TIME PICKER LOGIC.
         // Handle date picker.
         // Credits: KDTechs (How to Create a Date And Time Picker From EditText in Android Studio + Source Code).
         datePicker.setOnClickListener(v -> {
@@ -206,47 +209,52 @@ public class AddTaskActivity extends AppCompatActivity {
             }, currentHour, currentMinute, false);
             timePickerDialog.show();
         });
+        // DATE PICKER & TIME PICKER LOGIC.
+        // -------------------------------------------------------------------------------------------------------------------------
 
-        // When 'Save' button is pressed, do this action. (Only applies if not in edit mode)
+        // -------------------------------------------------------------------------------------------------------------------------
+        // DEFAULT: ADD TASK LAYOUT.
+        // When 'Save' button is pressed, do this action. (Only applies if not in edit mode).
         if (!isEdit) {
             btnSave.setOnClickListener(v -> {
-
-                // Check notification permission before allowing task creation
+                // Check notification permission before allowing task creation (One-Time).
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                             != PackageManager.PERMISSION_GRANTED) {
 
                         ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                                NOTIFICATION_PERMISSION_CODE);
+                                NOTIFICATION_PERMISSION_CODE); // Notification permission request.
 
                         showToast("Please allow notifications to enable reminders.");
-                        return; // ⛔ Block task creation
+                        return; // Block task creation
                     }
                 }
 
-
+                // Get all inputs.
                 String title = txteTitle.getText().toString().trim();
                 String description = txteDescription.getText().toString().trim();
                 String date = datePicker.getText().toString().trim();
                 String time = timePicker.getText().toString().trim();
 
+                // Validates selected radiobutton; default: one-time.
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
                 String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
                 boolean isWeekly = scheduleType.equalsIgnoreCase("Weekly");
 
                 if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
-                    showToast("Please fill in all fields");
+                    showToast("Please fill in all fields"); // Handles empty inputs.
                 } else if (isDateTimeInPast(date, time)) {
-                    showToast("You cannot set a task in the past."); // Handles past dates
+                    showToast("You cannot set a task in the past."); // Handles past dates.
                 } else {
-                    // Insert and get the generated id; use it to schedule alarm
+                    // Insert and get the generated id; use it to schedule alarm.
                     long newIdLong = dbHelper.insertTask(title, description, date, time, scheduleType);
                     final int newTaskId = (int) newIdLong;
                     AlarmScheduler.scheduleAlarm(this, newTaskId, title, description, date, time, isWeekly);
 
                     showToast("Task saved successfully!");
 
+                    // Sets the edittext's fields back to default.
                     txteTitle.setText("");
                     txteDescription.setText("");
                     datePicker.setText("");
@@ -255,6 +263,8 @@ public class AddTaskActivity extends AppCompatActivity {
                 }
             });
         }
+        // DEFAULT: ADD TASK LAYOUT.
+        // -------------------------------------------------------------------------------------------------------------------------
     }
 
     // Converts the current Calendar date into a formatted string like "2025-10-05" (Year, Month, Day_of_Month).
@@ -264,6 +274,7 @@ public class AddTaskActivity extends AppCompatActivity {
         return dateFormat.format(calendar.getTime());
     }
 
+    // Validates the date; no previous dates allowed.
     private boolean isDateTimeInPast(String date, String time) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
@@ -273,20 +284,22 @@ public class AddTaskActivity extends AppCompatActivity {
             return selectedCal.getTimeInMillis() < System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
-            return true; // Block on error
+            return true; // Block on error.
         }
     }
 
+    // Prevents toast stacking.
     private void showToast(String message) {
         if (activeToast != null) {
-            activeToast.cancel(); // 🔥 Cancel any existing Toast
+            activeToast.cancel(); // Cancel any existing Toast
         }
         activeToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         activeToast.show();
     }
+
     // -------------------------------------------------------------------------------------------------------------------------
-    // Exports SQLite DB to local storage for viewing purposes; will be removed in the future updates.
-    // MUST BE REMOVED IN FUTURE UPDATES.
+    // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
+    // Exports SQLite DB to local storage of android device for debugging purposes; will be removed or hidden in the future updates???
     private void exportDatabaseToDownload() {
         File dbFile = getDatabasePath("taskmate.db");
         File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -300,6 +313,6 @@ public class AddTaskActivity extends AppCompatActivity {
             showToast("Export failed: " + e.getMessage());
         }
     }
-    // MUST BE REMOVED IN FUTURE UPDATES.
+    // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
     // -------------------------------------------------------------------------------------------------------------------------
 }

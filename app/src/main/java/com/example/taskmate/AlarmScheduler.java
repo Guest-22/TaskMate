@@ -14,7 +14,7 @@ import java.util.Locale;
 
 public class AlarmScheduler {
 
-    // ()NEWCODE - Add constant for weekly interval (7 days)
+    // Add constant for weekly interval (7 days)
     private static final long WEEK_INTERVAL = 7 * 24 * 60 * 60 * 1000L; // 7 days in milliseconds
 
     /**
@@ -39,23 +39,23 @@ public class AlarmScheduler {
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d("AlarmScheduler", "Invalid date/time parse for taskId " + taskId + ": " + date + " " + time);
-            return; // stop if invalid date/time
+            return; // Stop if invalid date/time.
         }
 
-        // Prevent past alarms
+        // Prevent past alarms.
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             Log.d("AlarmScheduler", "Attempted to schedule past alarm for taskId " + taskId);
             return;
         }
 
-        // Create intent for NotificationReceiver
+        // Create intent for NotificationReceiver.
         Intent intent = new Intent(context, NotificationReceiver.class);
         intent.setAction("TASK_ALARM_" + taskId); // important for cancel matching
         intent.putExtra("taskId", taskId);
         intent.putExtra("title", title);
         intent.putExtra("description", description);
 
-        // Create unique PendingIntent using task ID
+        // Create unique PendingIntent using task ID.
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 taskId,
@@ -65,7 +65,7 @@ public class AlarmScheduler {
 
         if (alarmManager != null) {
             if (isWeekly) {
-                // Schedule repeating alarm every 7 days
+                // setRepeating causes a lot of delays/missed notifs.
                 /*
                 alarmManager.setRepeating(
                         AlarmManager.RTC_WAKEUP,
@@ -75,16 +75,16 @@ public class AlarmScheduler {
                 );
                 Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
                  */
-                // ()NEWCODE
+                // Schedule repeating alarm every 7 days.
                 alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
                         pendingIntent
                 );
                 Log.d("AlarmScheduler", "Scheduled weekly (manual) alarm for taskId: " + taskId + " at " + calendar.getTime());
-                // ()NEWCODE
+                //
             } else {
-                // One-time schedule
+                // One-time schedule.
                 alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
@@ -94,9 +94,8 @@ public class AlarmScheduler {
             }
         }
     }
-    // ()NEWCODE
 
-    // Cancel alarm when task is deleted or updated
+    // Cancel alarm when task is deleted or updated.
     public static void cancelAlarm(Context context, int taskId) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
@@ -112,15 +111,15 @@ public class AlarmScheduler {
         );
 
         if (pendingIntent != null && alarmManager != null) {
-            alarmManager.cancel(pendingIntent);   // ✅ Cancels scheduled alarm
-            pendingIntent.cancel();               // 🧹 Extra safety: removes from system
+            alarmManager.cancel(pendingIntent);   // Cancels scheduled alarm
+            pendingIntent.cancel();               // Extra safety: removes from system
             Log.d("AlarmScheduler", "Alarm canceled for taskId: " + taskId);
         } else {
             Log.d("AlarmScheduler", "No alarm found to cancel for taskId: " + taskId);
         }
     }
 
-    // ()NEWCODE - helper method: debug list of scheduled tasks — limited (we log the tasks from DB + assume they are scheduled)
+    // Helper method: debug list of scheduled tasks — limited (we log the tasks from DB + assume they are scheduled).
     // Note: Android does not provide an API to list system alarms; we can log tasks from DB and mark as expected scheduled.
     public static void logScheduledTasksFromDb(Context context) {
         TaskDBHelper db = new TaskDBHelper(context);
@@ -129,5 +128,4 @@ public class AlarmScheduler {
             Log.d("AlarmScheduler", "DB Task id=" + t.getId() + " title='" + t.getTitle() + "' date=" + t.getDate() + " time=" + t.getTime() + " type=" + schedule);
         }
     }
-    // ()NEWCODE
 }
