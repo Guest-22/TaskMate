@@ -44,6 +44,7 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /*
     // Insert method.
     public void insertTask(String title, String description, String date, String time, String scheduleType) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -57,7 +58,21 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+     */
+    // Insert method that returns the inserted task's ID
+        public long insertTask(String title, String description, String date, String time, String scheduleType) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(COL_TITLE, title);
+            values.put(COL_DESCRIPTION, description);
+            values.put(COL_DUE_DATE, date);
+            values.put(COL_DUE_TIME, time);
+            values.put(COL_SCHEDULE_TYPE, scheduleType);
 
+            long taskId = db.insert(TABLE_NAME, null, values);
+            db.close();
+            return taskId;  // <-- return the generated ID
+        }
     // -------------------------------------------------------------------------------------------------------------------------
     // Fetch/Retrieve all tasks info from the DB; return type (List).
     public List<Task> getAllTasks() {
@@ -110,27 +125,36 @@ public class TaskDBHelper extends SQLiteOpenHelper {
             db.close();
         }
     // -------------------------------------------------------------------------------------------------------------------------
-    public int getLastInsertedId() {
-        int id = -1;
+    // Optional helper: get schedule type for a specific task id (used by NotificationReceiver)
+    // ()NEWCODE
+    public String getScheduleType(int id) {
+        String result = "";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT last_insert_rowid()", null);
+        Cursor cursor = db.rawQuery("SELECT " + COL_SCHEDULE_TYPE + " FROM " + TABLE_NAME + " WHERE " + COL_ID + " = ?", new String[]{String.valueOf(id)});
         if (cursor.moveToFirst()) {
-            id = cursor.getInt(0);
+            result = cursor.getString(0);
         }
         cursor.close();
         db.close();
-        return id;
+        return result;
     }
+    // ()NEWCODE
 
-    public String getScheduleType(int taskId) {
+    // ()NEWCODE - Get the time string (e.g., "12:00 PM") for a specific task
+    public String getTaskTime(int taskId) {
+        String time = null;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT scheduleType FROM " + TABLE_NAME + " WHERE id = ?", new String[]{String.valueOf(taskId)});
-        if (cursor.moveToFirst()) {
-            String type = cursor.getString(0);
+
+        Cursor cursor = db.rawQuery("SELECT " + COL_DUE_TIME + " FROM " + TABLE_NAME + " WHERE " + COL_ID + " = ?", new String[]{String.valueOf(taskId)});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                time = cursor.getString(cursor.getColumnIndexOrThrow(COL_DUE_TIME));
+            }
             cursor.close();
-            return type;
         }
-        cursor.close();
-        return "One-time"; // default fallback
+
+        db.close();
+        return time;
     }
+// ()NEWCODE
 }
