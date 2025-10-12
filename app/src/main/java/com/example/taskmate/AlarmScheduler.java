@@ -1,77 +1,3 @@
-/*package com.example.taskmate;
-
-import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-
-public class AlarmScheduler {
-
-    // Schedule an alarm for a specific task
-    @SuppressLint("ScheduleExactAlarm")
-    public static void scheduleAlarm(Context context, int taskId, String title, String description, String date, String time) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        // Convert date and time (like 2025-10-08, 11:30 AM) to Calendar
-        Calendar calendar = Calendar.getInstance();
-        try {
-            // Convert 12-hour format string into a proper date-time object
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
-            calendar.setTime(sdf.parse(date + " " + time));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return; // stop if invalid date/time
-        }
-
-        // Intent to trigger NotificationReceiver
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra("taskId", taskId);
-        intent.putExtra("title", title);
-        intent.putExtra("description", description);
-
-        // Each task gets its own PendingIntent using its ID as a unique code
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                taskId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        // Schedule the alarm
-        if (alarmManager != null) {
-            alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    pendingIntent
-            );
-        }
-    }
-
-    // Cancel alarm if task is deleted or updated
-    public static void cancelAlarm(Context context, int taskId) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                taskId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent);
-        }
-    }
-}
-*/
-
 package com.example.taskmate;
 
 import android.annotation.SuppressLint;
@@ -79,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -111,16 +38,19 @@ public class AlarmScheduler {
             calendar.setTime(sdf.parse(date + " " + time));
         } catch (ParseException e) {
             e.printStackTrace();
+            Log.d("AlarmScheduler", "Invalid date/time parse for taskId " + taskId + ": " + date + " " + time);
             return; // stop if invalid date/time
         }
 
         // Prevent past alarms
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            Log.d("AlarmScheduler", "Attempted to schedule past alarm for taskId " + taskId);
             return;
         }
 
         // Create intent for NotificationReceiver
         Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.setAction("TASK_ALARM_" + taskId); // important for cancel matching
         intent.putExtra("taskId", taskId);
         intent.putExtra("title", title);
         intent.putExtra("description", description);
@@ -130,18 +60,29 @@ public class AlarmScheduler {
                 context,
                 taskId,
                 intent,
-                PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
         if (alarmManager != null) {
             if (isWeekly) {
                 // Schedule repeating alarm every 7 days
+                /*
                 alarmManager.setRepeating(
                         AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
                         WEEK_INTERVAL,
                         pendingIntent
                 );
+                Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
+                 */
+                // ()NEWCODE
+                alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(),
+                        pendingIntent
+                );
+                Log.d("AlarmScheduler", "Scheduled weekly (manual) alarm for taskId: " + taskId + " at " + calendar.getTime());
+                // ()NEWCODE
             } else {
                 // One-time schedule
                 alarmManager.setExactAndAllowWhileIdle(
@@ -149,24 +90,44 @@ public class AlarmScheduler {
                         calendar.getTimeInMillis(),
                         pendingIntent
                 );
+                Log.d("AlarmScheduler", "Scheduled one-time alarm for taskId: " + taskId + " at " + calendar.getTime());
             }
         }
     }
+    // ()NEWCODE
 
     // Cancel alarm when task is deleted or updated
     public static void cancelAlarm(Context context, int taskId) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
+        // Must exactly match the intent used in scheduleAlarm
         Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.setAction("TASK_ALARM_" + taskId); // 🔑 Ensures identity match
+
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 taskId,
                 intent,
-                PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE // <— no new PendingIntent is created
         );
 
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent);
+        if (pendingIntent != null && alarmManager != null) {
+            alarmManager.cancel(pendingIntent);   // ✅ Cancels scheduled alarm
+            pendingIntent.cancel();               // 🧹 Extra safety: removes from system
+            Log.d("AlarmScheduler", "Alarm canceled for taskId: " + taskId);
+        } else {
+            Log.d("AlarmScheduler", "No alarm found to cancel for taskId: " + taskId);
         }
     }
+
+    // ()NEWCODE - helper method: debug list of scheduled tasks — limited (we log the tasks from DB + assume they are scheduled)
+    // Note: Android does not provide an API to list system alarms; we can log tasks from DB and mark as expected scheduled.
+    public static void logScheduledTasksFromDb(Context context) {
+        TaskDBHelper db = new TaskDBHelper(context);
+        for (Task t : db.getAllTasks()) {
+            String schedule = t.getType();
+            Log.d("AlarmScheduler", "DB Task id=" + t.getId() + " title='" + t.getTitle() + "' date=" + t.getDate() + " time=" + t.getTime() + " type=" + schedule);
+        }
+    }
+    // ()NEWCODE
 }

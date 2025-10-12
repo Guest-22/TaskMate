@@ -1,9 +1,14 @@
 package com.example.taskmate;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -16,6 +21,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,6 +36,10 @@ import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
 
+    // Requesting for notification permission (Unique ID per permission req).
+    private static final int NOTIFICATION_PERMISSION_CODE = 1001;
+
+    // Declaring variables.
     TimePickerDialog timePickerDialog;
     Calendar calendar = Calendar.getInstance();
     int currentHour;
@@ -40,6 +50,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private RadioGroup rgSchedType;
     private RadioButton rbOneTime, rbWeekly;
     private Button btnSave, btnExportDB, btnDelete;
+    private Toast activeToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +86,8 @@ public class AddTaskActivity extends AppCompatActivity {
         // MUST BE REMOVE IN FUTURE UPDATES.
         // Export SQLiteDB button logic
         ActivityCompat.requestPermissions(this,
-                new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                100);
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                1002);
         btnExportDB.setOnClickListener(v -> exportDatabaseToDownload());
         // MUST BE REMOVE IN FUTURE UPDATES.
         // -------------------------------------------------------------------------------------------------------------------------
@@ -126,12 +137,18 @@ public class AddTaskActivity extends AppCompatActivity {
                 boolean isWeekly = newScheduleType.equalsIgnoreCase("Weekly"); //
 
                 if (newTitle.isEmpty() || newDescription.isEmpty() || newDate.isEmpty() || newTime.isEmpty()) {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    showToast("Please fill in all fields");
+                } else if (isDateTimeInPast(newDate, newTime)) {
+                    showToast("You cannot set a task in the past."); // Handles past dates.
                 } else {
+                    // Updates task in DB.
                     dbHelper.updateTask(taskId, newTitle, newDescription, newDate, newTime, newScheduleType);
+
+                    // Cancel old alarm and schedule new one using same taskId
                     AlarmScheduler.cancelAlarm(this, taskId);
                     AlarmScheduler.scheduleAlarm(this, taskId, newTitle, newDescription, newDate, newTime, isWeekly);
-                    Toast.makeText(this, "Task updated successfully!", Toast.LENGTH_SHORT).show();
+
+                    showToast("Task updated successfully!");
                     finish(); // Close and return to list
                 }
             });
@@ -139,19 +156,21 @@ public class AddTaskActivity extends AppCompatActivity {
             // Delete button
             btnDelete.setVisibility(View.VISIBLE);
             btnDelete.setOnClickListener(v -> {
-                new android.app.AlertDialog.Builder(this)
+                new AlertDialog.Builder(this)
                     .setTitle("Confirm Delete")
                     .setMessage("Are you sure you want to delete this task?")
                     .setPositiveButton("Yes", (dialog, which) -> {
 
                         // Removes/cancels upcoming notification.
+                        // Cancel alarm, remove notification and delete DB record
                         AlarmScheduler.cancelAlarm(this, taskId);
                         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        manager.cancel(taskId);
-
-                        dbHelper.deleteTask(taskId); // Deletes task record.
-                        Toast.makeText(this, "Task deleted successfully!", Toast.LENGTH_SHORT).show();
-                        finish();
+                        if (manager != null) {
+                            manager.cancel(taskId);
+                        }
+                        dbHelper.deleteTask(taskId);
+                        Intent intent = new Intent(this, MainActivity.class);
+                        startActivity(intent);
                     })
                     .setNegativeButton("No", null)
                     .show();
@@ -191,6 +210,22 @@ public class AddTaskActivity extends AppCompatActivity {
         // When 'Save' button is pressed, do this action. (Only applies if not in edit mode)
         if (!isEdit) {
             btnSave.setOnClickListener(v -> {
+
+                // Check notification permission before allowing task creation
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        ActivityCompat.requestPermissions(this,
+                                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                                NOTIFICATION_PERMISSION_CODE);
+
+                        showToast("Please allow notifications to enable reminders.");
+                        return; // ⛔ Block task creation
+                    }
+                }
+
+
                 String title = txteTitle.getText().toString().trim();
                 String description = txteDescription.getText().toString().trim();
                 String date = datePicker.getText().toString().trim();
@@ -201,13 +236,16 @@ public class AddTaskActivity extends AppCompatActivity {
                 boolean isWeekly = scheduleType.equalsIgnoreCase("Weekly");
 
                 if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    showToast("Please fill in all fields");
+                } else if (isDateTimeInPast(date, time)) {
+                    showToast("You cannot set a task in the past."); // Handles past dates
                 } else {
-                    dbHelper.insertTask(title, description, date, time, scheduleType);
-                    int taskId = dbHelper.getLastInsertedId();
-                    AlarmScheduler.scheduleAlarm(this, taskId, title, description, date, time, isWeekly);
+                    // Insert and get the generated id; use it to schedule alarm
+                    long newIdLong = dbHelper.insertTask(title, description, date, time, scheduleType);
+                    final int newTaskId = (int) newIdLong;
+                    AlarmScheduler.scheduleAlarm(this, newTaskId, title, description, date, time, isWeekly);
 
-                    Toast.makeText(this, "Task saved successfully!", Toast.LENGTH_SHORT).show();
+                    showToast("Task saved successfully!");
 
                     txteTitle.setText("");
                     txteDescription.setText("");
@@ -226,6 +264,26 @@ public class AddTaskActivity extends AppCompatActivity {
         return dateFormat.format(calendar.getTime());
     }
 
+    private boolean isDateTimeInPast(String date, String time) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+            Calendar selectedCal = Calendar.getInstance();
+            selectedCal.setTime(sdf.parse(date + " " + time));
+
+            return selectedCal.getTimeInMillis() < System.currentTimeMillis();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true; // Block on error
+        }
+    }
+
+    private void showToast(String message) {
+        if (activeToast != null) {
+            activeToast.cancel(); // 🔥 Cancel any existing Toast
+        }
+        activeToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        activeToast.show();
+    }
     // -------------------------------------------------------------------------------------------------------------------------
     // Exports SQLite DB to local storage for viewing purposes; will be removed in the future updates.
     // MUST BE REMOVED IN FUTURE UPDATES.
@@ -236,10 +294,10 @@ public class AddTaskActivity extends AppCompatActivity {
 
         try {
             Files.copy(dbFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            Toast.makeText(this, "Exported to: " + destFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            showToast("Exported to: " + destFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            showToast("Export failed: " + e.getMessage());
         }
     }
     // MUST BE REMOVED IN FUTURE UPDATES.

@@ -12,7 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 // Adapter class to connect Task data with RecyclerView items
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
@@ -50,19 +53,56 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
         // Set color based on schedule type: weekly = blue & one-time = green.
         Context context = holder.itemView.getContext();
+        String taskColor = "GREEN"; // default
+
         if (task.getType().equalsIgnoreCase("Weekly")) {
-            holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.blue));
+            taskColor = "weekly";
         } else {
-            holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+            // One-time, compute the color based on deadline.
+            try {
+                String dateTimeString = task.getDate() + " " + task.getTime();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+                Date dueDate = sdf.parse(dateTimeString);
+
+                long now = System.currentTimeMillis();
+                long diffMillis = dueDate.getTime() - now;
+                long diffDays = diffMillis / (1000 * 60 * 60 * 24);
+
+                if (diffDays <= 3) {
+                    taskColor = "red";
+                } else if (diffDays <= 7) {
+                    taskColor = "yellow";
+                } else {
+                    taskColor = "green";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                taskColor = "green";
+            }
         }
 
-        // -------------------------------------------------------------------------------------------------------------------------
-        // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
+        // Use switch to apply the background color
+        switch (taskColor) {
+            case "weekly": // Weekly task default color.
+                holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.blue));
+                break;
+            case "red": // One-time task; 3 days before deadline.
+                holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.red));
+                break;
+            case "yellow": // One-time task; 7 days before deadline.
+                holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+                break;
+            case "green": // One-time task; more than 7 days before deadline.
+            default:
+                holder.leftPanel.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+                break;
+        }
+
         // Inside onBindViewHolder:
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AddTaskActivity.class);
 
-            // Pass full task data
+            // Pass full task data/info and redirects to AddTaskActivity (editMode == true).
             intent.putExtra("isEdit", true);
             intent.putExtra("taskId", task.getId());
             intent.putExtra("title", task.getTitle());
