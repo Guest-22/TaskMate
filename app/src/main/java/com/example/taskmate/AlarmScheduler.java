@@ -65,8 +65,9 @@ public class AlarmScheduler {
 
         if (alarmManager != null) {
             if (isWeekly) {
-                // setRepeating causes a lot of delays/missed notifs.
+
                 /*
+                // setRepeating causes a lot of delays/missed notifs.
                 alarmManager.setRepeating(
                         AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
@@ -82,7 +83,6 @@ public class AlarmScheduler {
                         pendingIntent
                 );
                 Log.d("AlarmScheduler", "Scheduled weekly (manual) alarm for taskId: " + taskId + " at " + calendar.getTime());
-                //
             } else {
                 // One-time schedule.
                 alarmManager.setExactAndAllowWhileIdle(

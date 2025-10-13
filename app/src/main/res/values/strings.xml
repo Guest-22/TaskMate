@@ -16,4 +16,5 @@
     <string name="enter_task_description">Enter task description</string>
     <string name="select_time">Select time</string>
     <string name="select_date">Select date</string>
+    <string name="export_sqlite">Export SQLite</string>
 </resources>
