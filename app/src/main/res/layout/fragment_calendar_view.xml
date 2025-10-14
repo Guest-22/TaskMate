@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
     tools:context=".CalendarViewFragment" >
 
-    <CalendarView
-        android:id="@+id/calendarView2"
+    <!-- Material Calendar View by Applandeo-->
+    <com.applandeo.materialcalendarview.CalendarView
+        android:id="@+id/calendarView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="5dp"
+        app:pagesColor="@color/black"
+        app:todayLabelColor="@color/purple"
+        app:daysLabelsColor="@color/white"
+        app:highlightedDaysLabelsColor="@color/purple"
+        app:selectionLabelColor="@color/purple"
+        app:headerColor="@color/purple"
+        app:abbreviationsBarColor="@color/black"
+        app:abbreviationsLabelsColor="@color/inactive"
+        app:eventsEnabled="true"
         />
+
 </FrameLayout>

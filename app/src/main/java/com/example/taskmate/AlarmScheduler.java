@@ -64,8 +64,6 @@ public class AlarmScheduler {
         );
 
         if (alarmManager != null) {
-            if (isWeekly) {
-
                 /*
                 // setRepeating causes a lot of delays/missed notifs.
                 alarmManager.setRepeating(
@@ -76,6 +74,7 @@ public class AlarmScheduler {
                 );
                 Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
                  */
+            if (isWeekly) {
                 // Schedule repeating alarm every 7 days.
                 alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
