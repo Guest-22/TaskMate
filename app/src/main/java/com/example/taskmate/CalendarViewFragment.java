@@ -2,6 +2,8 @@ package com.example.taskmate;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.applandeo.materialcalendarview.CalendarDay;
 import com.applandeo.materialcalendarview.CalendarView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -238,38 +241,57 @@ public class CalendarViewFragment extends Fragment {
     }
 
     // For two task in a single day.
+    // For multiple tasks in a single day.
     private int getDualDotIcon(List<Task> sameDayTasks, SimpleDateFormat sdf, long todayMillis) {
         boolean hasWeekly = false;
         boolean hasOneTime = false;
-        int urgencyIcon = R.drawable.dot_green; // Default.
 
+        // First pass: detect task types.
         for (Task t : sameDayTasks) {
             if ("Weekly".equalsIgnoreCase(t.getType())) {
                 hasWeekly = true;
             } else {
                 hasOneTime = true;
+            }
+        }
 
-                try {
-                    Date parsedDate = sdf.parse(t.getDate());
-                    long diffMillis = parsedDate.getTime() - todayMillis;
-                    long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
+        // Only show dual-dot if both types exist.
+        if (hasWeekly && hasOneTime) {
+            for (Task t : sameDayTasks) {
+                if (!"Weekly".equalsIgnoreCase(t.getType())) {
+                    try {
+                        Date parsedDate = sdf.parse(t.getDate());
+                        long diffMillis = parsedDate.getTime() - todayMillis;
+                        long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
 
-                    if (diffDays <= 3) urgencyIcon = R.drawable.dot_dual_red;
-                    else if (diffDays <= 7) urgencyIcon = R.drawable.dot_dual_yellow;
-                    else urgencyIcon = R.drawable.dot_dual_green;
+                        if (diffDays <= 3) return R.drawable.dot_dual_red;
+                        else if (diffDays <= 7) return R.drawable.dot_dual_yellow;
+                        else return R.drawable.dot_dual_green;
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    urgencyIcon = R.drawable.dot_dual_red;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return R.drawable.dot_dual_red;
+                    }
                 }
             }
         }
 
-        if (hasWeekly && hasOneTime) {
-            return urgencyIcon; // Dual-dot based on urgency.
-        }
+        // Only weekly tasks: single blue dot.
+        if (hasWeekly) return R.drawable.dot_blue;
 
-        if (hasWeekly) return R.drawable.dot_blue; // Single blue dot.
-        return urgencyIcon; // Fallback to urgency-only.
+        // Only one-time tasks: single urgency dot.
+        try {
+            Date parsedDate = sdf.parse(sameDayTasks.get(0).getDate());
+            long diffMillis = parsedDate.getTime() - todayMillis;
+            long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
+
+            if (diffDays <= 3) return R.drawable.dot_red;
+            else if (diffDays <= 7) return R.drawable.dot_yellow;
+            else return R.drawable.dot_green;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.drawable.dot_green;
+        }
     }
 }
