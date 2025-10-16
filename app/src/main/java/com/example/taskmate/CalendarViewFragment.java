@@ -28,6 +28,8 @@ import java.util.Locale;
  */
 public class CalendarViewFragment extends Fragment {
 
+    private CalendarView calendarView;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -68,81 +70,33 @@ public class CalendarViewFragment extends Fragment {
         }
     }
 
-    /*
-    // Single dot events.
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_calendar_view, container, false);
-        CalendarView calendarView = view.findViewById(R.id.calendarView);
-
-        TaskDBHelper dbHelper = new TaskDBHelper(requireContext());
-        List<Task> tasks = dbHelper.getAllTasks();
-
-        List<CalendarDay> calendarDays = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        long todayMillis = System.currentTimeMillis();
-
-        for (Task task : tasks) {
-            try {
-                String dateStr = task.getDate();
-                String schedType = task.getType();
-
-                if (dateStr == null || schedType == null) continue;
-
-                Date parsedDate = sdf.parse(dateStr);
-                if (parsedDate == null) continue;
-
-                // Convert date into Calendar like docs.
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(parsedDate);
-
-                // Determine icon based on type + date difference.
-                long diffMillis = parsedDate.getTime() - todayMillis;
-                long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
-
-                int iconRes;
-                if ("Weekly".equalsIgnoreCase(schedType)) {
-                    iconRes = R.drawable.dot_blue;
-                } else {
-                    if (diffDays <= 3) {
-                        iconRes = R.drawable.dot_red;
-                    } else if (diffDays <= 7) {
-                        iconRes = R.drawable.dot_yellow;
-                    } else {
-                        iconRes = R.drawable.dot_green;
-                    }
-                }
-
-                // Matches library docs style.
-                CalendarDay calendarDay = new CalendarDay(calendar);
-                calendarDay.setImageResource(iconRes);
-
-                calendarDays.add(calendarDay);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Apply to CalendarView (docs approach)
-        if (!calendarDays.isEmpty()) {
-            calendarView.setCalendarDays(calendarDays);
-        }
-        return view;
-    }
-     */
-
     // Credits: Applandeo Material Calendar View on Github.
     // Source Link: https://github.com/Applandeo/Material-Calendar-View?tab=readme-ov-file
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_calendar_view, container, false);
-        CalendarView calendarView = view.findViewById(R.id.calendarView);
+        calendarView = view.findViewById(R.id.calendarView);
+        refreshCalendar(); // Initial load
 
+        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton2);
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AddTaskActivity.class);
+            startActivity(intent);
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (calendarView != null) {
+            refreshCalendar(); // Reload when returning
+        }
+    }
+
+    private void refreshCalendar() {
         TaskDBHelper dbHelper = new TaskDBHelper(requireContext());
         List<Task> tasks = dbHelper.getAllTasks();
 
@@ -150,18 +104,13 @@ public class CalendarViewFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         long todayMillis = System.currentTimeMillis();
 
-        // Step 1: Loop through tasks manually by date.
         for (int i = 0; i < tasks.size(); i++) {
             Task current = tasks.get(i);
             String currentDate = current.getDate();
             if (currentDate == null) continue;
 
-            // Check if we already handled this date.
-            if (dateAlreadyAdded(calendarDays, currentDate, sdf)) {
-                continue;
-            }
+            if (isDateAlreadyAdded(calendarDays, currentDate, sdf)) continue;
 
-            // Collect tasks with the same date.
             List<Task> sameDayTasks = new ArrayList<>();
             sameDayTasks.add(current);
             for (int j = i + 1; j < tasks.size(); j++) {
@@ -170,13 +119,7 @@ public class CalendarViewFragment extends Fragment {
                 }
             }
 
-            // Decide what icon to use.
-            int iconRes;
-            if (sameDayTasks.size() == 1) {
-                iconRes = getSingleDotIcon(sameDayTasks.get(0), sdf, todayMillis);
-            } else {
-                iconRes = getDualDotIcon(sameDayTasks, sdf, todayMillis);
-            }
+            int iconRes = TaskColorAssigner.getDotIcon(requireContext(), sameDayTasks);
 
             try {
                 Date parsed = sdf.parse(currentDate);
@@ -192,15 +135,11 @@ public class CalendarViewFragment extends Fragment {
             }
         }
 
-        if (!calendarDays.isEmpty()) {
-            calendarView.setCalendarDays(calendarDays);
-        }
-
-        return view;
+        calendarView.setCalendarDays(calendarDays);
     }
 
     // Date checker.
-    private boolean dateAlreadyAdded(List<CalendarDay> days, String dateStr, SimpleDateFormat sdf) {
+    private boolean isDateAlreadyAdded(List<CalendarDay> days, String dateStr, SimpleDateFormat sdf) {
         try {
             Date target = sdf.parse(dateStr);
             Calendar calTarget = Calendar.getInstance();
@@ -218,80 +157,5 @@ public class CalendarViewFragment extends Fragment {
             e.printStackTrace();
         }
         return false;
-    }
-
-    // For single task in a single day.
-    private int getSingleDotIcon(Task task, SimpleDateFormat sdf, long todayMillis) {
-        try {
-            Date parsedDate = sdf.parse(task.getDate());
-            long diffMillis = parsedDate.getTime() - todayMillis;
-            long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
-
-            if ("Weekly".equalsIgnoreCase(task.getType())) {
-                return R.drawable.dot_blue;
-            }
-            if (diffDays <= 3) return R.drawable.dot_red;
-            else if (diffDays <= 7) return R.drawable.dot_yellow;
-            else return R.drawable.dot_green;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return R.drawable.dot_green;
-        }
-    }
-
-    // For two task in a single day.
-    // For multiple tasks in a single day.
-    private int getDualDotIcon(List<Task> sameDayTasks, SimpleDateFormat sdf, long todayMillis) {
-        boolean hasWeekly = false;
-        boolean hasOneTime = false;
-
-        // First pass: detect task types.
-        for (Task t : sameDayTasks) {
-            if ("Weekly".equalsIgnoreCase(t.getType())) {
-                hasWeekly = true;
-            } else {
-                hasOneTime = true;
-            }
-        }
-
-        // Only show dual-dot if both types exist.
-        if (hasWeekly && hasOneTime) {
-            for (Task t : sameDayTasks) {
-                if (!"Weekly".equalsIgnoreCase(t.getType())) {
-                    try {
-                        Date parsedDate = sdf.parse(t.getDate());
-                        long diffMillis = parsedDate.getTime() - todayMillis;
-                        long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
-
-                        if (diffDays <= 3) return R.drawable.dot_dual_red;
-                        else if (diffDays <= 7) return R.drawable.dot_dual_yellow;
-                        else return R.drawable.dot_dual_green;
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return R.drawable.dot_dual_red;
-                    }
-                }
-            }
-        }
-
-        // Only weekly tasks: single blue dot.
-        if (hasWeekly) return R.drawable.dot_blue;
-
-        // Only one-time tasks: single urgency dot.
-        try {
-            Date parsedDate = sdf.parse(sameDayTasks.get(0).getDate());
-            long diffMillis = parsedDate.getTime() - todayMillis;
-            long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
-
-            if (diffDays <= 3) return R.drawable.dot_red;
-            else if (diffDays <= 7) return R.drawable.dot_yellow;
-            else return R.drawable.dot_green;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return R.drawable.dot_green;
-        }
     }
 }

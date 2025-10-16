@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.core.content.ContextCompat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class TaskColorAssigner {
@@ -46,6 +47,62 @@ public class TaskColorAssigner {
             case "green":
             default:
                 return ContextCompat.getColor(context, R.color.green);
+        }
+    }
+
+    public static int getDotIcon(Context context, List<Task> sameDayTasks) {
+        boolean hasWeekly = false;
+        boolean hasOneTime = false;
+        long todayMillis = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+        for (Task t : sameDayTasks) {
+            if ("Weekly".equalsIgnoreCase(t.getType())) {
+                hasWeekly = true;
+            } else {
+                hasOneTime = true;
+            }
+        }
+
+        // Dual-dot logic
+        if (hasWeekly && hasOneTime) {
+            for (Task t : sameDayTasks) {
+                if (!"Weekly".equalsIgnoreCase(t.getType())) {
+                    try {
+                        Date parsedDate = sdf.parse(t.getDate());
+                        long diffMillis = parsedDate.getTime() - todayMillis;
+                        long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
+
+                        if (diffDays <= 3) return R.drawable.dot_dual_red;
+                        else if (diffDays <= 7) return R.drawable.dot_dual_yellow;
+                        else return R.drawable.dot_dual_green;
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return R.drawable.dot_dual_red;
+                    }
+                }
+            }
+        }
+
+        // Single-dot logic
+        Task reference = sameDayTasks.get(0);
+        if ("Weekly".equalsIgnoreCase(reference.getType())) {
+            return R.drawable.dot_blue;
+        }
+
+        try {
+            Date parsedDate = sdf.parse(reference.getDate());
+            long diffMillis = parsedDate.getTime() - todayMillis;
+            long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
+
+            if (diffDays <= 3) return R.drawable.dot_red;
+            else if (diffDays <= 7) return R.drawable.dot_yellow;
+            else return R.drawable.dot_green;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return R.drawable.dot_green;
         }
     }
 }
