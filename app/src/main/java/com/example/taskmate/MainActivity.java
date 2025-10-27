@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -73,32 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_nav_menu, menu);
-
-        /* DISABLED SEARCH OPTION; FOR FUTURE UPDATES.
-        // Finds the search item from the menu.
-        MenuItem searchItem = menu.findItem(R.id.search);
-        androidx.appcompat.widget.SearchView searchView =
-                (androidx.appcompat.widget.SearchView) searchItem.getActionView();
-
-        // Hint/Guide text.
-        searchView.setQueryHint("Search");
-
-        // Listener for typing or submitting.
-        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // For now, just show a toast with the query message.
-                Toast.makeText(MainActivity.this, "You typed: " + query, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // Handles live search here.
-                return false;
-            }
-        });
-        */
         return true;
     }
 
@@ -107,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.feedback) {
             openEmailApp();
+            return true;
+        }
+        else if (item.getItemId() == R.id.sort){
+            showSortOptions();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -132,4 +112,24 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "No email app installed.", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void showSortOptions() {
+        String[] options = {
+                "Sort by Creation Date",
+                "Sort by Due Date",
+                "Sort by Schedule Type"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("Sort Tasks By")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0: listViewFragment.sortTasks("created"); break;
+                        case 1: listViewFragment.sortTasks("date"); break;
+                        case 2: listViewFragment.sortTasks("type"); break;
+                    }
+                })
+                .show();
+    }
+
 }

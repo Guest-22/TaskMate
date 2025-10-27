@@ -14,9 +14,6 @@ import java.util.Locale;
 
 public class AlarmScheduler {
 
-    // Add constant for weekly interval (7 days)
-    private static final long WEEK_INTERVAL = 7 * 24 * 60 * 60 * 1000L; // 7 days in milliseconds
-
     /**
      * Schedule an alarm for a specific task.
      * @param context       App context
@@ -27,9 +24,14 @@ public class AlarmScheduler {
      * @param time          Time in "hh:mm a" (e.g., "07:30 PM")
      * @param isWeekly      If true, schedule repeats every week
      */
+
     @SuppressLint("ScheduleExactAlarm")
     public static void scheduleAlarm(Context context, int taskId, String title, String description, String date, String time, boolean isWeekly) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        /* Debugging purposes only; used for showing all alarms/notifs.
+        logScheduledTasksFromDb(context);
+         */
 
         // Convert date and time (e.g., 2025-10-08 11:30 AM) into a Calendar
         Calendar calendar = Calendar.getInstance();
@@ -50,7 +52,7 @@ public class AlarmScheduler {
 
         // Create intent for NotificationReceiver.
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.setAction("TASK_ALARM_" + taskId); // important for cancel matching
+        intent.setAction("TASK_ALARM_" + taskId); // important for cancel matching.
         intent.putExtra("taskId", taskId);
         intent.putExtra("title", title);
         intent.putExtra("description", description);
@@ -64,24 +66,14 @@ public class AlarmScheduler {
         );
 
         if (alarmManager != null) {
-                /*
-                // setRepeating causes a lot of delays/missed notifs.
-                alarmManager.setRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(),
-                        WEEK_INTERVAL,
-                        pendingIntent
-                );
-                Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
-                 */
             if (isWeekly) {
-                // Schedule repeating alarm every 7 days.
+                // Schedule repeating notifs every 7 days.
                 alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(),
                         pendingIntent
                 );
-                Log.d("AlarmScheduler", "Scheduled weekly (manual) alarm for taskId: " + taskId + " at " + calendar.getTime());
+                Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
             } else {
                 // One-time schedule.
                 alarmManager.setExactAndAllowWhileIdle(
@@ -94,32 +86,32 @@ public class AlarmScheduler {
         }
     }
 
-    // Cancel alarm when task is deleted or updated.
+    // Cancels existing alarm when task is deleted or updated.
     public static void cancelAlarm(Context context, int taskId) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        // Must exactly match the intent used in scheduleAlarm
+        // Must exactly match the intent used in scheduleAlarm.
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.setAction("TASK_ALARM_" + taskId); // 🔑 Ensures identity match
+        intent.setAction("TASK_ALARM_" + taskId); // Ensures identity match.
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 taskId,
                 intent,
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE // <— no new PendingIntent is created
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE // No new PendingIntent is created.
         );
 
+        // Handles cancellation of existing alarm.
         if (pendingIntent != null && alarmManager != null) {
-            alarmManager.cancel(pendingIntent);   // Cancels scheduled alarm
-            pendingIntent.cancel();               // Extra safety: removes from system
+            alarmManager.cancel(pendingIntent); // Cancels scheduled alarm.
+            pendingIntent.cancel(); // Extra safety: removes from system.
             Log.d("AlarmScheduler", "Alarm canceled for taskId: " + taskId);
         } else {
             Log.d("AlarmScheduler", "No alarm found to cancel for taskId: " + taskId);
         }
     }
 
-    // Helper method: debug list of scheduled tasks — limited (we log the tasks from DB + assume they are scheduled).
-    // Note: Android does not provide an API to list system alarms; we can log tasks from DB and mark as expected scheduled.
+    // Retrieve and shows a of all existing task and their infos inside logcat for debugging purposes.
     public static void logScheduledTasksFromDb(Context context) {
         TaskDBHelper db = new TaskDBHelper(context);
         for (Task t : db.getAllTasks()) {

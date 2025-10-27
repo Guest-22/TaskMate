@@ -50,7 +50,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private RadioGroup rgSchedType;
     private RadioButton rbOneTime, rbWeekly;
     private Button btnSave, btnExportDB, btnDelete;
-    private Toast activeToast; // For preventing toast stacks; removes the current toast & replace with a new toast message.
+    private Toast activeToast; // For preventing delayed toast stacks; cancels & replace current toast w/ new ones.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

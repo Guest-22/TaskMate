@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -20,16 +22,19 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class ListViewFragment extends Fragment {
+    // Initializing variables.
+    private RecyclerView recyclerView;
+    private TaskAdapter adapter;
+    private List<Task> taskList;
+    private TaskDBHelper dbHelper;
+    private String currentSortMode = "created"; // default
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // Initializing variables.
-    private RecyclerView recyclerView;
-    private TaskAdapter taskAdapter;
-    private TaskDBHelper dbHelper;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -66,25 +71,6 @@ public class ListViewFragment extends Fragment {
         }
     }
 
-    /*
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        // return inflater.inflate(R.layout.fragment_list_view, container, false);
-
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_list_view, container, false);
-
-        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), AddTaskActivity.class);
-            startActivity(intent);
-        });
-
-        return view;
-    }*/
-
     // Called when the fragment's view is being created.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,16 +80,16 @@ public class ListViewFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list_view, container, false);
 
         // Find the RecyclerView from the inflated layout
-        RecyclerView recyclerView = view.findViewById(R.id.rvListItem);
+        recyclerView = view.findViewById(R.id.rvListItem);
 
         // Create an instance of the database helper to access stored tasks.
-        TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+        dbHelper = new TaskDBHelper(getContext());
 
         // Retrieve all tasks from the database.
-        List<Task> taskList = dbHelper.getAllTasks();
+        taskList = dbHelper.getAllTasks();
 
         // Create a TaskAdapter using the retrieved task list.
-        TaskAdapter adapter = new TaskAdapter(taskList);
+        adapter = new TaskAdapter(taskList);
 
         // Set the adapter to the RecyclerView to display the tasks.
         recyclerView.setAdapter(adapter);
@@ -126,16 +112,32 @@ public class ListViewFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // Re-fetch the RecyclerView from the current view.
-        RecyclerView recyclerView = getView().findViewById(R.id.rvListItem);
+        if (dbHelper == null) dbHelper = new TaskDBHelper(getContext());
 
-        // Re-initialize the database helper.
-        TaskDBHelper dbHelper = new TaskDBHelper(getContext());
+        sortTasks(currentSortMode); // Reapply the last selected sort mode.
+        adapter.notifyDataSetChanged(); // Refresh the existing adapter
+    }
 
-        // Re-fetch the updated list of tasks from the database.
-        List<Task> taskList = dbHelper.getAllTasks();
+    public void sortTasks(String criteria) {
+        if (taskList == null || adapter == null || dbHelper == null) return;
 
-        // Re-bind the updated task list to the RecyclerView.
-        recyclerView.setAdapter(new TaskAdapter(taskList));
+        switch (criteria) {
+            case "date":
+                taskList.clear();
+                taskList.addAll(dbHelper.getTasksSortedByDueDate());
+                break;
+
+            case "type":
+                taskList.clear();
+                taskList.addAll(dbHelper.getTasksSortedByScheduleType());
+                break;
+
+            case "created":
+            default:
+                taskList.clear();
+                taskList.addAll(dbHelper.getTasksSortedByCreation());
+                break;
+        }
+        adapter.notifyDataSetChanged(); // Refresh RecyclerView
     }
 }

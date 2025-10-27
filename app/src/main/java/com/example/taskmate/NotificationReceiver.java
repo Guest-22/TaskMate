@@ -12,7 +12,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.net.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,6 +19,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class NotificationReceiver extends BroadcastReceiver {
+
     @SuppressLint("ScheduleExactAlarm")
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -27,7 +27,9 @@ public class NotificationReceiver extends BroadcastReceiver {
         String title = intent.getStringExtra("title");
         String description = intent.getStringExtra("description");
 
-        // Create Notification Channel (Android 8+).
+        Log.d("NotifReceiver", "onReceive() fired for taskId=" + taskId);
+
+        // Create notification channel
         String channelId = "taskmate_channel";
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -40,7 +42,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             manager.createNotificationChannel(channel);
         }
 
-        // Intent to open MainActivity when notification is tapped.
+        // Tapping notification opens MainActivity
         Intent openIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
@@ -49,7 +51,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        // Build notification.
+        // Build and show notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
@@ -58,67 +60,53 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent);
 
-        // Show notification.
         if (manager != null) {
             manager.notify(taskId, builder.build());
-            Log.d("NotificationReceiver", "Notification shown for taskId: " + taskId);
+            Log.d("NotifReceiver", "Notification shown for taskId=" + taskId);
         }
 
-        // Auto-cancel one-time alarms after triggering.
+        // DB helper for getting schedule-type (i.e., one-time or weekly).
         TaskDBHelper dbHelper = new TaskDBHelper(context);
         String scheduleType = dbHelper.getScheduleType(taskId);
+
         if ("One-time".equalsIgnoreCase(scheduleType)) {
-            // Cancels the pending alarm (safety) — repeating alarms remain.
             AlarmScheduler.cancelAlarm(context, taskId);
-            Log.d("NotificationReceiver", "Auto-canceled one-time alarm for taskId: " + taskId);
+            Log.d("NotifReceiver", "One-time alarm canceled for taskId=" + taskId);
         }
 
-        // Manual weekly rescheduling logic.
         else if ("Weekly".equalsIgnoreCase(scheduleType)) {
-            Calendar nextWeek = Calendar.getInstance();
-            nextWeek.setTimeInMillis(System.currentTimeMillis());
-            nextWeek.add(Calendar.DAY_OF_YEAR, 7); // Add 7 days.
-
-            // Set time to same hour/minute as original.
-            String time = dbHelper.getTaskTime(taskId); // e.g., "12:00 PM".
-            Log.d("AlarmDebug", "Time string from DB: " + time); // Debug log to verify time format
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.US);
-                Date parsedTime = sdf.parse(time);
-                Calendar timeOnly = Calendar.getInstance();
-                timeOnly.setTime(parsedTime);
-                nextWeek.set(Calendar.HOUR_OF_DAY, timeOnly.get(Calendar.HOUR_OF_DAY));
-                nextWeek.set(Calendar.MINUTE, timeOnly.get(Calendar.MINUTE));
-                nextWeek.set(Calendar.SECOND, 0);
-                nextWeek.set(Calendar.MILLISECOND, 0);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (java.text.ParseException e) {
-                throw new RuntimeException(e);
+                String lastDate = dbHelper.getTaskDate(taskId);
+                String lastTime = dbHelper.getTaskTime(taskId);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+                Date lastDateTime = sdf.parse(lastDate + " " + lastTime);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(lastDateTime);
+                calendar.add(Calendar.DAY_OF_YEAR, 7); // Push 7 days from last scheduled time
+
+                // Cancel old alarm.
+                AlarmScheduler.cancelAlarm(context, taskId);
+
+                // Delete old task.
+                dbHelper.deleteTask(taskId);
+
+                // Format new date/time.
+                String newDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
+                String newTime = new SimpleDateFormat("hh:mm a", Locale.US).format(calendar.getTime());
+
+                // Insert new task.
+                int newTaskId = (int) dbHelper.insertTask(title, description, newDate, newTime, "Weekly");
+
+                // Schedule new alarm
+                AlarmScheduler.scheduleAlarm(context, newTaskId, title, description, newDate, newTime, true);
+
+                Log.d("NotifReceiver", "Renewed weekly task: newTaskId=" + newTaskId + " for " + newDate + " " + newTime);
+
+            } catch (Exception e) {
+                Log.d("NotifReceiver", "Failed to renew weekly task for taskId=" + taskId, e);
             }
-
-            // Create intent for next week's alarm.
-            Intent newIntent = new Intent(context, NotificationReceiver.class);
-            newIntent.setAction("TASK_ALARM_" + taskId);
-            newIntent.putExtra("taskId", taskId);
-            newIntent.putExtra("title", title);
-            newIntent.putExtra("description", description);
-
-            PendingIntent newPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    taskId,
-                    newIntent,
-                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-            );
-
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    nextWeek.getTimeInMillis(),
-                    newPendingIntent
-            );
-
-            Log.d("NotificationReceiver", "Rescheduled weekly alarm for taskId: " + taskId + " at " + nextWeek.getTime());
         }
     }
 }

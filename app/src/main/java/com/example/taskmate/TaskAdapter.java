@@ -89,11 +89,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         // Constructor that finds and stores view references.
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtTitle = itemView.findViewById(R.id.txtvTitle);               // Title TextView.
-            txtDescription = itemView.findViewById(R.id.txtvDescription);   // Description TextView.
-            txtDueDate = itemView.findViewById(R.id.txtvDueDate);           // Due Date TextView.
-            txtDueTime = itemView.findViewById(R.id.txtvDueTime);           // Due Time TextView.
-            leftPanel = itemView.findViewById(R.id.leftPanel);              // Left Panel Color LinearLayout.
+            txtTitle = itemView.findViewById(R.id.txtvTitle); // Title TextView.
+            txtDescription = itemView.findViewById(R.id.txtvDescription); // Description TextView.
+            txtDueDate = itemView.findViewById(R.id.txtvDueDate); // Due Date TextView.
+            txtDueTime = itemView.findViewById(R.id.txtvDueTime); // Due Time TextView.
+            leftPanel = itemView.findViewById(R.id.leftPanel); // Left Panel Color LinearLayout (SchedType: One-Time/Weekly).
         }
     }
 }

@@ -18,7 +18,7 @@
         app:daysLabelsColor="@color/white"
         app:highlightedDaysLabelsColor="@color/purple"
         app:selectionLabelColor="@color/purple"
-        app:headerColor="@color/purple"
+        app:headerColor="@color/black"
         app:abbreviationsBarColor="@color/black"
         app:abbreviationsLabelsColor="@color/inactive"
         app:eventsEnabled="true"

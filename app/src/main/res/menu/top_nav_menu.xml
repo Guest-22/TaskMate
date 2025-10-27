@@ -2,15 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- DISABLED SEARCH OPTION; FOR FUTURE UPDATES.
     <item
-        android:id="@+id/search"
-        android:title="Search"
-        android:icon="@drawable/search_icon"
-        app:showAsAction="always|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        />
-        -->
+    android:id="@+id/sort"
+    android:title="Sort"
+    android:icon="@drawable/sort_icon"
+    app:showAsAction="always" />
 
     <item
         android:id="@+id/feedback"
