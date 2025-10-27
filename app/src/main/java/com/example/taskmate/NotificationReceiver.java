@@ -42,7 +42,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             manager.createNotificationChannel(channel);
         }
 
-        // Tapping notification opens MainActivity
+        // Tapping notification opens MainActivity.
         Intent openIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
@@ -51,7 +51,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        // Build and show notification
+        // Build and show notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
@@ -84,13 +84,10 @@ public class NotificationReceiver extends BroadcastReceiver {
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(lastDateTime);
-                calendar.add(Calendar.DAY_OF_YEAR, 7); // Push 7 days from last scheduled time
+                calendar.add(Calendar.DAY_OF_YEAR, 7); // Push 7 days from last scheduled time.
 
-                // Cancel old alarm.
-                AlarmScheduler.cancelAlarm(context, taskId);
-
-                // Delete old task.
-                dbHelper.deleteTask(taskId);
+                AlarmScheduler.cancelAlarm(context, taskId); // Cancel old alarm.
+                dbHelper.deleteTask(taskId); // Delete old task.
 
                 // Format new date/time.
                 String newDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
@@ -99,11 +96,10 @@ public class NotificationReceiver extends BroadcastReceiver {
                 // Insert new task.
                 int newTaskId = (int) dbHelper.insertTask(title, description, newDate, newTime, "Weekly");
 
-                // Schedule new alarm
+                // Schedule new alarm.
                 AlarmScheduler.scheduleAlarm(context, newTaskId, title, description, newDate, newTime, true);
 
                 Log.d("NotifReceiver", "Renewed weekly task: newTaskId=" + newTaskId + " for " + newDate + " " + newTime);
-
             } catch (Exception e) {
                 Log.d("NotifReceiver", "Failed to renew weekly task for taskId=" + taskId, e);
             }

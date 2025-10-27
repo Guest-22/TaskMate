@@ -27,7 +27,7 @@ public class ListViewFragment extends Fragment {
     private TaskAdapter adapter;
     private List<Task> taskList;
     private TaskDBHelper dbHelper;
-    private String currentSortMode = "created"; // default
+    private String currentSortMode = "created"; // default sort.
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -75,28 +75,19 @@ public class ListViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout XML file for this fragment and store it in a View object.
         View view = inflater.inflate(R.layout.fragment_list_view, container, false);
 
-        // Find the RecyclerView from the inflated layout
-        recyclerView = view.findViewById(R.id.rvListItem);
+        recyclerView = view.findViewById(R.id.rvListItem); // Find the RecyclerView from the inflated layout
 
-        // Create an instance of the database helper to access stored tasks.
-        dbHelper = new TaskDBHelper(getContext());
+        dbHelper = new TaskDBHelper(getContext()); // Create an instance of the database helper to access stored tasks.
+        taskList = dbHelper.getAllTasks(); // Retrieve all tasks from the database.
 
-        // Retrieve all tasks from the database.
-        taskList = dbHelper.getAllTasks();
-
-        // Create a TaskAdapter using the retrieved task list.
-        adapter = new TaskAdapter(taskList);
-
-        // Set the adapter to the RecyclerView to display the tasks.
-        recyclerView.setAdapter(adapter);
+        adapter = new TaskAdapter(taskList); // Create a TaskAdapter using the retrieved task list.
+        recyclerView.setAdapter(adapter); // Set the adapter to the RecyclerView to display the tasks.
 
         // Find the FloatingActionButton from the layout.
         FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
-
         // Set a click listener on the FAB to open AddTaskActivity when clicked.
         fab.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AddTaskActivity.class);
@@ -114,10 +105,11 @@ public class ListViewFragment extends Fragment {
 
         if (dbHelper == null) dbHelper = new TaskDBHelper(getContext());
 
-        sortTasks(currentSortMode); // Reapply the last selected sort mode.
+        sortTasks(currentSortMode); // Reapply the last selected sort.
         adapter.notifyDataSetChanged(); // Refresh the existing adapter
     }
 
+    // Sorts tasks as per selected criteria.
     public void sortTasks(String criteria) {
         if (taskList == null || adapter == null || dbHelper == null) return;
 
@@ -126,12 +118,10 @@ public class ListViewFragment extends Fragment {
                 taskList.clear();
                 taskList.addAll(dbHelper.getTasksSortedByDueDate());
                 break;
-
             case "type":
                 taskList.clear();
                 taskList.addAll(dbHelper.getTasksSortedByScheduleType());
                 break;
-
             case "created":
             default:
                 taskList.clear();
