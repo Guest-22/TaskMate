@@ -51,7 +51,7 @@ public class TaskColorAssigner {
             case "yellow":
                 return ContextCompat.getColor(context, R.color.yellow);
             case "gray":
-                return ContextCompat.getColor(context, R.color.inactive);
+                return ContextCompat.getColor(context, R.color.gray);
             case "green":
             default:
                 return ContextCompat.getColor(context, R.color.green);

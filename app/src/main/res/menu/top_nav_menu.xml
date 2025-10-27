@@ -8,10 +8,8 @@
     android:icon="@drawable/sort_icon"
     app:showAsAction="always" />
 
+    <!-- triple dot items -->
     <item
         android:id="@+id/feedback"
         android:title="Feedback" />
-    <item
-        android:id="@+id/settings"
-        android:title="Settings" />
 </menu>

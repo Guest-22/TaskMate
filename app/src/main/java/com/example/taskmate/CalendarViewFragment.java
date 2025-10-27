@@ -84,7 +84,6 @@ public class CalendarViewFragment extends Fragment {
             Intent intent = new Intent(getActivity(), AddTaskActivity.class);
             startActivity(intent);
         });
-
         return view;
     }
 

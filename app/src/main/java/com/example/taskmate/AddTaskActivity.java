@@ -74,23 +74,18 @@ public class AddTaskActivity extends AppCompatActivity {
         rbWeekly = findViewById(R.id.rbWeekly);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
-
         rbOneTime.setChecked(true); // Automatically sets one-time as default selected option
-        // -------------------------------------------------------------------------------------------------------------------------
+
+        /* -------------------------------------------------------------------------------------------------------------------------
         // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
         btnExportDB = findViewById(R.id.btnExportDB); // Export SQLiteDB button
-        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
-        // -------------------------------------------------------------------------------------------------------------------------
 
-        // -------------------------------------------------------------------------------------------------------------------------
-        // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
-        // Export SQLiteDB button logic
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 1002);
         btnExportDB.setOnClickListener(v -> exportDatabaseToDownload());
         // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
-        // -------------------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------------------- */
 
         // Creating an instance of TaskDBHelper class to use SQLite operations (i.e., CRUD Operations).
         TaskDBHelper dbHelper = new TaskDBHelper(this);
@@ -297,7 +292,7 @@ public class AddTaskActivity extends AppCompatActivity {
         activeToast.show();
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------
+    /* -------------------------------------------------------------------------------------------------------------------------
     // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
     // Exports SQLite DB to local storage of android device for debugging purposes; will be removed or hidden in the future updates???
     private void exportDatabaseToDownload() {
@@ -314,5 +309,5 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
     // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
-    // -------------------------------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------------------------- */
 }

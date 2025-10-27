@@ -25,6 +25,7 @@ import com.google.android.material.navigation.NavigationBarView;
 public class MainActivity extends AppCompatActivity {
 
     Toolbar topNav;
+    private Menu topMenu;
     BottomNavigationView botNav;
     ListViewFragment listViewFragment = new ListViewFragment();
     CalendarViewFragment calendarViewFragment = new CalendarViewFragment();
@@ -58,11 +59,18 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame, listViewFragment)
                             .commit();
+
+                    if (topMenu != null) {
+                        topMenu.findItem(R.id.sort).setVisible(true); // Show sort in ListView.
+                    }
                     return true;
                 } else if (id == R.id.calendarView) { // Else, replace it with calendar view
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame, calendarViewFragment)
                             .commit();
+                    if (topMenu != null) {
+                        topMenu.findItem(R.id.sort).setVisible(false); // Hide sort in CalendarView.
+                    }
                     return true;
                 }
                 return false;
@@ -75,10 +83,11 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_nav_menu, menu);
+        topMenu = menu; // Stores menu for reference.
         return true;
     }
 
-    // Email Feedback
+    // Email Feedback.
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.feedback) {
@@ -113,13 +122,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Show sort options.
     private void showSortOptions() {
         String[] options = {
                 "Sort by Creation Date",
                 "Sort by Due Date",
                 "Sort by Schedule Type"
         };
-
         new AlertDialog.Builder(this)
                 .setTitle("Sort Tasks By")
                 .setItems(options, (dialog, which) -> {
@@ -131,5 +140,4 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .show();
     }
-
 }

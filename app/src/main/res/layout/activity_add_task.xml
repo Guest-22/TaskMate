@@ -141,10 +141,9 @@
         android:id="@+id/rgSchedType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="@+id/timePicker"
-        app:layout_constraintTop_toBottomOf="@+id/timePicker">
+        app:layout_constraintTop_toBottomOf="@+id/txtvSchedType">
 
         <RadioButton
             android:id="@+id/rbOneTime"
@@ -165,11 +164,23 @@
             android:textSize="16sp" />
     </RadioGroup>
 
+    <TextView
+        android:id="@+id/txtvSchedType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/schedule_type"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtvTime2"
+        app:layout_constraintStart_toStartOf="@+id/txtvTime2"
+        app:layout_constraintTop_toBottomOf="@+id/timePicker" />
+
     <Button
         android:id="@+id/btnSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="2dp"
         android:backgroundTint="@color/purple"
         android:text="@string/save"
         android:textColor="@color/white"
@@ -195,11 +206,12 @@
         app:layout_constraintStart_toEndOf="@+id/btnSave"
         app:layout_constraintTop_toTopOf="@+id/btnSave" />
 
-    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
+    <!-- EXPORT SQLITEDB HIDDEN. -->
     <Button
         android:id="@+id/btnExportDB"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:backgroundTint="@color/yellow"
         android:text="@string/export_sqlite"
         android:textColor="@color/white"
@@ -207,6 +219,6 @@
         app:layout_constraintEnd_toEndOf="@+id/timePicker"
         app:layout_constraintStart_toStartOf="@+id/timePicker"
         app:layout_constraintTop_toBottomOf="@+id/btnSave" />
-    <!-- MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. MUST BE REMOVED IN FUTURE UPDATES. -->
+    <!-- EXPORT SQLITEDB HIDDEN. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

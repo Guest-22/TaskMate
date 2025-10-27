@@ -113,6 +113,8 @@ public class ListViewFragment extends Fragment {
     public void sortTasks(String criteria) {
         if (taskList == null || adapter == null || dbHelper == null) return;
 
+        currentSortMode = criteria;
+
         switch (criteria) {
             case "date":
                 taskList.clear();
