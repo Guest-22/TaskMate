@@ -10,6 +10,8 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AlarmScheduler {
@@ -25,13 +27,10 @@ public class AlarmScheduler {
      * @param isWeekly      If true, schedule repeats every week
      */
 
+    // Schedules alarm at exact date & time.
     @SuppressLint("ScheduleExactAlarm")
     public static void scheduleAlarm(Context context, int taskId, String title, String description, String date, String time, boolean isWeekly) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        /* Debugging purposes only; used for showing all alarms/notifs.
-        logScheduledTasksFromDb(context);
-         */
 
         // Convert date and time (e.g., 2025-10-08 11:30 AM) into a Calendar
         Calendar calendar = Calendar.getInstance();
@@ -65,6 +64,7 @@ public class AlarmScheduler {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
+        // Schedules notification alarm.
         if (alarmManager != null) {
             if (isWeekly) {
                 // Schedule repeating notifs every 7 days.
@@ -111,12 +111,56 @@ public class AlarmScheduler {
         }
     }
 
-    // Retrieve and shows a of all existing task and their infos inside logcat for debugging purposes.
+    // Get all scheduled alarms/notifs to be rescheduled after boot/restart.
+    public static void scheduleAllAlarms(Context context) {
+        TaskDBHelper dbHelper = new TaskDBHelper(context);
+        List<Task> allTasks = dbHelper.getAllTasks();
+
+        if (allTasks == null || allTasks.isEmpty()) {
+            Log.d("AlarmScheduler", "No tasks found to reschedule.");
+            return;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+        Date now = new Date();
+
+        for (Task task : allTasks) {
+            try {
+                Date taskDateTime = sdf.parse(task.getDate() + " " + task.getTime());
+
+                if (taskDateTime != null && taskDateTime.after(now)) {
+                    boolean isWeekly = "Weekly".equalsIgnoreCase(task.getType());
+
+                    scheduleAlarm(
+                            context,
+                            task.getId(),
+                            task.getTitle(),
+                            task.getDescription(),
+                            task.getDate(),
+                            task.getTime(),
+                            isWeekly
+                    );
+
+                    Log.d("AlarmScheduler", "Rescheduled taskId=" + task.getId() +
+                            " (" + task.getTitle() + ") for " + task.getDate() + " " + task.getTime());
+                } else {
+                    Log.d("AlarmScheduler", "Skipped past taskId=" + task.getId());
+                }
+
+            } catch (Exception e) {
+                Log.e("AlarmScheduler", "Failed to reschedule taskId=" + task.getId(), e);
+            }
+        }
+
+        Log.d("AlarmScheduler", "All future alarms restored after reboot.");
+    }
+
+    /* Retrieve and shows a of all existing task and their infos inside logcat for debugging purposes.
     public static void logScheduledTasksFromDb(Context context) {
         TaskDBHelper db = new TaskDBHelper(context);
         for (Task t : db.getAllTasks()) {
             String schedule = t.getType();
             Log.d("AlarmScheduler", "DB Task id=" + t.getId() + " title='" + t.getTitle() + "' date=" + t.getDate() + " time=" + t.getTime() + " type=" + schedule);
         }
-    }
+    }*/
 }

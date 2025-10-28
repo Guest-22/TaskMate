@@ -1,6 +1,7 @@
 package com.example.taskmate;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -94,7 +95,11 @@ public class MainActivity extends AppCompatActivity {
             openEmailApp();
             return true;
         }
-        else if (item.getItemId() == R.id.sort){
+        else if (item.getItemId() == R.id.restore_notifications) {
+            restoreNotifications(this);
+            return true;
+        }
+        else if (item.getItemId() == R.id.sort) {
             showSortOptions();
             return true;
         }
@@ -120,6 +125,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this, "No email app installed.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Reschedule all notifications manually.
+    public void restoreNotifications(Context context) {
+        AlarmScheduler.scheduleAllAlarms(context); // Reschedules all alarm notifs.
+        Toast.makeText(context, "Notifications restored", Toast.LENGTH_SHORT).show();
     }
 
     // Show sort options.
