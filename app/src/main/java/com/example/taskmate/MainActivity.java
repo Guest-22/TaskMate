@@ -43,11 +43,21 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Ask the user for notification permission at app launch.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
         }
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame, listViewFragment).commit();
+        // Ask for auto-start permission at app launch.
+        new AlertDialog.Builder(this)
+                .setTitle("Enable Auto‑Start")
+                .setMessage("To make sure your reminders and alarms work after reboot, please allow TaskMate to auto‑start.")
+                .setPositiveButton("Go to Settings", (dialog, which) ->
+                        AutoStartHelper.openAutoStartSettings(this))
+                .setNegativeButton("Later", null)
+                .show();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, listViewFragment).commit(); // Display list view as current frame.
 
         botNav = findViewById(R.id.botNav);
         botNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {

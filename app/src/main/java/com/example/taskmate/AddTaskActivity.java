@@ -212,7 +212,7 @@ public class AddTaskActivity extends AppCompatActivity {
         // When 'Save' button is pressed, do this action. (Only applies if not in edit mode).
         if (!isEdit) {
             btnSave.setOnClickListener(v -> {
-                // Check notification permission before allowing task creation (One-Time).
+                // Ask for notification permission again.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                             != PackageManager.PERMISSION_GRANTED) {
@@ -226,6 +226,16 @@ public class AddTaskActivity extends AppCompatActivity {
                     }
                 }
 
+                // Ask for auto-start permission again.
+                new AlertDialog.Builder(this)
+                        .setTitle("Enable Auto‑Start")
+                        .setMessage("To make sure your reminders and alarms work after reboot, please allow TaskMate to auto‑start.")
+                        .setPositiveButton("Go to Settings", (dialog, which) ->
+                                AutoStartHelper.openAutoStartSettings(this))
+                        .setNegativeButton("Later", null)
+                        .show();
+                // Continue with saving the task...
+
                 // Get all inputs.
                 String title = txteTitle.getText().toString().trim();
                 String description = txteDescription.getText().toString().trim();
@@ -237,19 +247,19 @@ public class AddTaskActivity extends AppCompatActivity {
                 String scheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
                 boolean isWeekly = scheduleType.equalsIgnoreCase("Weekly");
 
-                if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {
-                    showToast("Please fill in all fields"); // Handles empty inputs.
-                } else if (isDateTimeInPast(date, time)) {
-                    showToast("You cannot set a task in the past."); // Handles past dates.
+                if (title.isEmpty() || description.isEmpty() || date.isEmpty() || time.isEmpty()) {// Handles empty inputs.
+                    showToast("Please fill in all fields");
+                } else if (isDateTimeInPast(date, time)) {  // Handles past dates.
+                    showToast("You cannot set a task in the past.");
                 } else {
-                    // Insert and get the generated id; use it to schedule alarm.
+                    // Insert task and get the generated id; use it to schedule future alarm notif.
                     long newIdLong = dbHelper.insertTask(title, description, date, time, scheduleType);
                     final int newTaskId = (int) newIdLong;
                     AlarmScheduler.scheduleAlarm(this, newTaskId, title, description, date, time, isWeekly);
 
                     showToast("Task saved successfully!");
 
-                    // Sets the edittext's fields back to default.
+                    // Reset all input fields.
                     txteTitle.setText("");
                     txteDescription.setText("");
                     datePicker.setText("");
