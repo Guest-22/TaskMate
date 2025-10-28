@@ -1,11 +1,14 @@
 package com.example.taskmate;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,18 +118,18 @@ public class ListViewFragment extends Fragment {
 
         currentSortMode = criteria;
 
+        taskList.clear(); // Clear old task list data.
+
+        // Repopulate task list.
         switch (criteria) {
             case "date":
-                taskList.clear();
                 taskList.addAll(dbHelper.getTasksSortedByDueDate());
                 break;
             case "type":
-                taskList.clear();
                 taskList.addAll(dbHelper.getTasksSortedByScheduleType());
                 break;
             case "created":
             default:
-                taskList.clear();
                 taskList.addAll(dbHelper.getTasksSortedByCreation());
                 break;
         }

@@ -144,28 +144,28 @@ public class AddTaskActivity extends AppCompatActivity {
                     AlarmScheduler.scheduleAlarm(this, taskId, newTitle, newDescription, newDate, newTime, isWeekly);
 
                     showToast("Task updated successfully!");
-                    finish(); // Close and return to list
+                    finish(); // Close and return to list.
                 }
             });
 
-            // Delete button
-            btnDelete.setVisibility(View.VISIBLE);
+            // Delete button.
+            btnDelete.setVisibility(View.VISIBLE); // if isEdit == true, set delete button visible.
             btnDelete.setOnClickListener(v -> {
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this) // Confirmation.
                     .setTitle("Confirm Delete")
                     .setMessage("Are you sure you want to delete this task?")
                     .setPositiveButton("Yes", (dialog, which) -> {
 
-                        // Removes/cancels upcoming notification.
-                        // Cancel alarm, remove notification and delete DB record
+                        // Remove/Cancel alarm notification and delete DB record of selected task.
                         AlarmScheduler.cancelAlarm(this, taskId);
                         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         if (manager != null) {
                             manager.cancel(taskId);
                         }
                         dbHelper.deleteTask(taskId);
-                        Intent intent = new Intent(this, MainActivity.class);
-                        startActivity(intent);
+
+                        showToast("Task deleted successfully!");
+                        finish(); // Close and return to list.
                     })
                     .setNegativeButton("No", null)
                     .show();
@@ -222,7 +222,7 @@ public class AddTaskActivity extends AppCompatActivity {
                                 NOTIFICATION_PERMISSION_CODE); // Notification permission request.
 
                         showToast("Please allow notifications to enable reminders.");
-                        return; // Block task creation
+                        return; // Block task creation.
                     }
                 }
 

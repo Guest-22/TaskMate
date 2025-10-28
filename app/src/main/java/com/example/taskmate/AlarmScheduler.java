@@ -141,14 +141,13 @@ public class AlarmScheduler {
                             isWeekly
                     );
 
-                    Log.d("AlarmScheduler", "Rescheduled taskId=" + task.getId() +
-                            " (" + task.getTitle() + ") for " + task.getDate() + " " + task.getTime());
+                    Log.d("AlarmScheduler", "Rescheduled taskId=" + task.getId() + " (" + task.getTitle() + ") for " + task.getDate() + " " + task.getTime());
                 } else {
                     Log.d("AlarmScheduler", "Skipped past taskId=" + task.getId());
                 }
 
             } catch (Exception e) {
-                Log.e("AlarmScheduler", "Failed to reschedule taskId=" + task.getId(), e);
+                // Log.e("AlarmScheduler", "Failed to reschedule taskId=" + task.getId(), e);
             }
         }
 

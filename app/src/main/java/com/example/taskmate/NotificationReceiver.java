@@ -53,7 +53,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         // Build and show notification.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.notif_icon)
                 .setContentTitle(title)
                 .setContentText(description)
                 .setAutoCancel(true)
@@ -86,20 +86,18 @@ public class NotificationReceiver extends BroadcastReceiver {
                 calendar.setTime(lastDateTime);
                 calendar.add(Calendar.DAY_OF_YEAR, 7); // Push 7 days from last scheduled time.
 
-                AlarmScheduler.cancelAlarm(context, taskId); // Cancel old alarm.
-                dbHelper.deleteTask(taskId); // Delete old task.
-
                 // Format new date/time.
                 String newDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
                 String newTime = new SimpleDateFormat("hh:mm a", Locale.US).format(calendar.getTime());
 
-                // Insert new task.
-                int newTaskId = (int) dbHelper.insertTask(title, description, newDate, newTime, "Weekly");
+                // Update task in DB with new date & time (7 days ahead).
+                dbHelper.updateTaskDateTime(taskId, newDate, newTime);
 
-                // Schedule new alarm.
-                AlarmScheduler.scheduleAlarm(context, newTaskId, title, description, newDate, newTime, true);
+                // Cancel old alarm and schedule new one
+                AlarmScheduler.cancelAlarm(context, taskId);
+                AlarmScheduler.scheduleAlarm(context, taskId, title, description, newDate, newTime, true);
 
-                Log.d("NotifReceiver", "Renewed weekly task: newTaskId=" + newTaskId + " for " + newDate + " " + newTime);
+                Log.d("NotifReceiver", "Renewed weekly task: newTaskId=" + taskId + " for " + newDate + " " + newTime);
             } catch (Exception e) {
                 Log.d("NotifReceiver", "Failed to renew weekly task for taskId=" + taskId, e);
             }

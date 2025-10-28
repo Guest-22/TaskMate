@@ -206,7 +206,6 @@ public class TaskDBHelper extends SQLiteOpenHelper {
             values.put(COL_DUE_TIME, time);
             values.put(COL_SCHEDULE_TYPE, scheduleType);
 
-            // UPDATE tasks SET title=?, description=?, ... WHERE id = ?
             db.update(TABLE_NAME, values, COL_ID + " = ?", new String[]{String.valueOf(id)});
             db.close();
         }
@@ -251,7 +250,7 @@ public class TaskDBHelper extends SQLiteOpenHelper {
     public String getTaskDate(int taskId) {
         String date = "";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_DUE_DATE +" FROM " + TABLE_NAME +" WHERE " + COL_ID +" = ?", new String[]{String.valueOf(taskId)});
+        Cursor cursor = db.rawQuery("SELECT " + COL_DUE_DATE + " FROM " + TABLE_NAME + " WHERE " + COL_ID + " = ?", new String[]{String.valueOf(taskId)});
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 date = cursor.getString(0);
@@ -262,8 +261,8 @@ public class TaskDBHelper extends SQLiteOpenHelper {
         return date;
     }
 
-    // Updates task date for weekly; change existing task date & time to next week (7 days after notif fires).
-    public void updateTaskDate(int taskId, String newDate, String newTime) {
+    // Updates task date & time for weekly (7 days ahead after notif fires).
+    public void updateTaskDateTime(int taskId, String newDate, String newTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_DUE_DATE, newDate);
