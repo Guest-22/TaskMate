@@ -40,6 +40,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         // Tapping notification opens MainActivity.
         Intent openIntent = new Intent(context, MainActivity.class);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
                 taskId,

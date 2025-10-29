@@ -2,20 +2,15 @@ package com.example.taskmate;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.applandeo.materialcalendarview.CalendarDay;
 import com.applandeo.materialcalendarview.CalendarView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,10 +86,11 @@ public class CalendarViewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (calendarView != null) {
-            refreshCalendar(); // Reload when returning
+            refreshCalendar(); // Reload when returning.
         }
     }
 
+    // Refreshes material calendar.
     private void refreshCalendar() {
         TaskDBHelper dbHelper = new TaskDBHelper(requireContext());
         List<Task> tasks = dbHelper.getAllTasks();

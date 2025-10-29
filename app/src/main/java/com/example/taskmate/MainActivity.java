@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Opens the Email app with a message template.
     private void openEmailApp() {
-        String adminEmail = "freshbiteshomecooks@gmail.com"; // Receiver; dummy account.
+        String adminEmail = "guest22developer@gmail.com"; // Receiver; dummy account.
         String subject = "App Feedback";
         String message = "Hey! Got some feedback:\n";
 
