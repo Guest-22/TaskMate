@@ -1,7 +1,6 @@
 package com.example.taskmate;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,10 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
-
 import androidx.core.app.NotificationCompat;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -27,7 +23,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         String title = intent.getStringExtra("title");
         String description = intent.getStringExtra("description");
 
-        Log.d("NotifReceiver", "onReceive() fired for taskId=" + taskId);
+        LogHelper.d("NotifReceiver", "onReceive() fired for taskId=" + taskId);
 
         // Create notification channel
         String channelId = "taskmate_channel";
@@ -62,7 +58,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         if (manager != null) {
             manager.notify(taskId, builder.build());
-            Log.d("NotifReceiver", "Notification shown for taskId=" + taskId);
+            LogHelper.d("NotifReceiver", "Notification shown for taskId=" + taskId);
         }
 
         // DB helper for getting schedule-type (i.e., one-time or weekly).
@@ -71,7 +67,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         if ("One-time".equalsIgnoreCase(scheduleType)) {
             AlarmScheduler.cancelAlarm(context, taskId);
-            Log.d("NotifReceiver", "One-time alarm canceled for taskId=" + taskId);
+            LogHelper.d("NotifReceiver", "One-time alarm canceled for taskId=" + taskId);
         }
 
         else if ("Weekly".equalsIgnoreCase(scheduleType)) {
@@ -97,9 +93,9 @@ public class NotificationReceiver extends BroadcastReceiver {
                 AlarmScheduler.cancelAlarm(context, taskId);
                 AlarmScheduler.scheduleAlarm(context, taskId, title, description, newDate, newTime, true);
 
-                Log.d("NotifReceiver", "Renewed weekly task: newTaskId=" + taskId + " for " + newDate + " " + newTime);
+                LogHelper.d("NotifReceiver", "Renewed weekly task: newTaskId=" + taskId + " for " + newDate + " " + newTime);
             } catch (Exception e) {
-                Log.d("NotifReceiver", "Failed to renew weekly task for taskId=" + taskId, e);
+                LogHelper.e("NotifReceiver", "Failed to renew weekly task for taskId=" + taskId, e);
             }
         }
     }

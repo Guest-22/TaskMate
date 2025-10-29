@@ -7,15 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 // Adapter class to connect Task data with RecyclerView items.
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
@@ -49,9 +43,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.txtDueDate.setText("Due on: " + task.getDate());
         holder.txtDueTime.setText(task.getTime());
 
-        // -------------------------------------------------------------------------------------------------------------------------
-        // FUTURE UPDATES: THE COLOR WILL VARY ON DEADLINE FOR ONE_TIME SCHEDS.
-        // Set color based on schedule type: weekly = blue & one-time = green.
         Context context = holder.itemView.getContext();
 
         // Assigns background color to existing task/s.
@@ -62,7 +53,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AddTaskActivity.class);
 
-            // Pass full task data/info and redirects to AddTaskActivity (editMode == true).
+            // Pass all task info & redirect to AddTaskActivity (editMode == true) (Update & Delete).
             intent.putExtra("isEdit", true);
             intent.putExtra("taskId", task.getId());
             intent.putExtra("title", task.getTitle());

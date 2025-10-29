@@ -37,7 +37,7 @@ public class TaskColorAssigner {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogHelper.e("TaskColorAssigner", "getBackgroundColor: Failed to parse date/time for taskId=" + task.getId(), e);
                 taskColor = "green";
             }
         }
@@ -86,7 +86,7 @@ public class TaskColorAssigner {
                         else return R.drawable.dot_dual_green;
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogHelper.e("TaskColorAssigner", "getDotIcon: Failed to parse date for dual-dot taskId=" + t.getId(), e);
                         return R.drawable.dot_dual_red;
                     }
                 }
@@ -109,7 +109,7 @@ public class TaskColorAssigner {
             else return R.drawable.dot_green;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogHelper.e("TaskColorAssigner", "getDotIcon: Failed to parse date for single-dot taskId=" + reference.getId(), e);
             return R.drawable.dot_green;
         }
     }

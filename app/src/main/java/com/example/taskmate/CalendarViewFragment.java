@@ -101,7 +101,6 @@ public class CalendarViewFragment extends Fragment {
 
         List<CalendarDay> calendarDays = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        long todayMillis = System.currentTimeMillis();
 
         for (int i = 0; i < tasks.size(); i++) {
             Task current = tasks.get(i);
@@ -130,7 +129,7 @@ public class CalendarViewFragment extends Fragment {
                     calendarDays.add(day);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogHelper.e("CalendarViewFragment", "refreshCalendar: Failed to parse date for taskId=" + current.getId(), e);
             }
         }
 
@@ -153,7 +152,7 @@ public class CalendarViewFragment extends Fragment {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogHelper.e("CalendarViewFragment", "isDateAlreadyAdded: Failed to parse dateStr=" + dateStr, e);
         }
         return false;
     }

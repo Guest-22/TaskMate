@@ -5,8 +5,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,14 +36,13 @@ public class AlarmScheduler {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
             calendar.setTime(sdf.parse(date + " " + time));
         } catch (ParseException e) {
-            e.printStackTrace();
-            Log.d("AlarmScheduler", "Invalid date/time parse for taskId " + taskId + ": " + date + " " + time);
+            LogHelper.e("AlarmScheduler", "Invalid date/time parse for taskId " + taskId + ": " + date + " " + time, e);
             return; // Stop if invalid date/time.
         }
 
         // Prevent past alarms.
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
-            Log.d("AlarmScheduler", "Attempted to schedule past alarm for taskId " + taskId);
+            LogHelper.d("AlarmScheduler", "Attempted to schedule past alarm for taskId " + taskId);
             return;
         }
 
@@ -73,7 +70,7 @@ public class AlarmScheduler {
                         calendar.getTimeInMillis(),
                         pendingIntent
                 );
-                Log.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
+                LogHelper.d("AlarmScheduler", "Scheduled weekly alarm for taskId: " + taskId + " at " + calendar.getTime());
             } else {
                 // One-time schedule.
                 alarmManager.setExactAndAllowWhileIdle(
@@ -81,7 +78,7 @@ public class AlarmScheduler {
                         calendar.getTimeInMillis(),
                         pendingIntent
                 );
-                Log.d("AlarmScheduler", "Scheduled one-time alarm for taskId: " + taskId + " at " + calendar.getTime());
+                LogHelper.d("AlarmScheduler", "Scheduled one-time alarm for taskId: " + taskId + " at " + calendar.getTime());
             }
         }
     }
@@ -105,9 +102,9 @@ public class AlarmScheduler {
         if (pendingIntent != null && alarmManager != null) {
             alarmManager.cancel(pendingIntent); // Cancels scheduled alarm.
             pendingIntent.cancel(); // Extra safety: removes from system.
-            Log.d("AlarmScheduler", "Alarm canceled for taskId: " + taskId);
+            LogHelper.d("AlarmScheduler", "Alarm canceled for taskId: " + taskId);
         } else {
-            Log.d("AlarmScheduler", "No alarm found to cancel for taskId: " + taskId);
+            LogHelper.d("AlarmScheduler", "No alarm found to cancel for taskId: " + taskId);
         }
     }
 
@@ -117,7 +114,7 @@ public class AlarmScheduler {
         List<Task> allTasks = dbHelper.getAllTasks();
 
         if (allTasks == null || allTasks.isEmpty()) {
-            Log.d("AlarmScheduler", "No tasks found to reschedule.");
+            LogHelper.d("AlarmScheduler", "No tasks found to reschedule.");
             return;
         }
 
@@ -141,17 +138,16 @@ public class AlarmScheduler {
                             isWeekly
                     );
 
-                    Log.d("AlarmScheduler", "Rescheduled taskId=" + task.getId() + " (" + task.getTitle() + ") for " + task.getDate() + " " + task.getTime());
+                    LogHelper.d("AlarmScheduler", "Rescheduled taskId=" + task.getId() + " (" + task.getTitle() + ") for " + task.getDate() + " " + task.getTime());
                 } else {
-                    Log.d("AlarmScheduler", "Skipped past taskId=" + task.getId());
+                    LogHelper.d("AlarmScheduler", "Skipped past taskId=" + task.getId());
                 }
 
             } catch (Exception e) {
-                // Log.e("AlarmScheduler", "Failed to reschedule taskId=" + task.getId(), e);
+                LogHelper.e("AlarmScheduler", "Failed to reschedule taskId=" + task.getId(), e);
             }
         }
-
-        Log.d("AlarmScheduler", "All future alarms restored after reboot.");
+        LogHelper.d("AlarmScheduler", "All future alarms restored after reboot.");
     }
 
     /* Retrieve and shows a of all existing task and their infos inside logcat for debugging purposes.
@@ -159,7 +155,7 @@ public class AlarmScheduler {
         TaskDBHelper db = new TaskDBHelper(context);
         for (Task t : db.getAllTasks()) {
             String schedule = t.getType();
-            Log.d("AlarmScheduler", "DB Task id=" + t.getId() + " title='" + t.getTitle() + "' date=" + t.getDate() + " time=" + t.getTime() + " type=" + schedule);
+            LogHelper.d("AlarmScheduler", "DB Task id=" + t.getId() + " title='" + t.getTitle() + "' date=" + t.getDate() + " time=" + t.getTime() + " type=" + schedule);
         }
     }*/
 }

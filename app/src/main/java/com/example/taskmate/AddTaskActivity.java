@@ -6,7 +6,6 @@ import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -24,11 +22,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class AddTaskActivity extends AppCompatActivity {
 
@@ -277,7 +273,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
             return selectedCal.getTimeInMillis() < System.currentTimeMillis();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogHelper.e("AddTaskActivity", "isDateTimeInPast: Failed to parse date/time (" + date + " " + time + ")", e);
             return true; // Block on error.
         }
     }
@@ -302,8 +298,7 @@ public class AddTaskActivity extends AppCompatActivity {
         try {
             Files.copy(dbFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             showToast("Exported to: " + destFile.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {;
             showToast("Export failed: " + e.getMessage());
         }
     }

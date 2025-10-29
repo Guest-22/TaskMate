@@ -11,7 +11,7 @@ public class BootReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
             Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(intent.getAction())) {
             
-            Log.d("TaskMateBootReceiver", "BOOT_COMPLETED received — restoring alarms...");
+            LogHelper.d("TaskMateBootReceiver", "BOOT_COMPLETED received — restoring alarms...");
             AlarmScheduler.scheduleAllAlarms(context); // Reschedule all task alarms/notifs.
         }
     }
