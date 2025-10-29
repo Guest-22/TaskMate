@@ -6,11 +6,10 @@ import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,13 +25,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AddTaskActivity extends AppCompatActivity {
 
@@ -226,15 +222,8 @@ public class AddTaskActivity extends AppCompatActivity {
                     }
                 }
 
-                // Ask for auto-start permission again.
-                new AlertDialog.Builder(this)
-                        .setTitle("Enable Auto‑Start")
-                        .setMessage("To make sure your reminders and alarms work after reboot, please allow TaskMate to auto‑start.")
-                        .setPositiveButton("Go to Settings", (dialog, which) ->
-                                AutoStartHelper.openAutoStartSettings(this))
-                        .setNegativeButton("Later", null)
-                        .show();
-                // Continue with saving the task...
+                // Ask for auto-start permission.
+                AutoStartHelper.showAutoStartPrompt(this);
 
                 // Get all inputs.
                 String title = txteTitle.getText().toString().trim();
