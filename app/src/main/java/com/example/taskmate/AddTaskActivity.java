@@ -27,6 +27,9 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
+    // FOR SQLITE DB DEBUGGING PURPOSES IMPORT THIS PERMISSION INSIDE (AndroidManifest.xml).
+    // <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
 
     // Requesting for notification permission (Unique ID per permission req).
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
@@ -283,7 +286,7 @@ public class AddTaskActivity extends AppCompatActivity {
         if (activeToast != null) {
             activeToast.cancel(); // Cancel any existing Toast
         }
-        activeToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        activeToast = Toast.makeText(this , message, Toast.LENGTH_SHORT);
         activeToast.show();
     }
 
