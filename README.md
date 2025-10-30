@@ -16,5 +16,22 @@ TaskMate uses color-coded visuals to represent task urgency and type across both
 - **Yellow**: Moderate urgency (7 days before deadline).
 - **Green**: Low urgency (more than 7 days).
 - **Blue**: Recurring task (weekly).
-- 
 > Calendar dots are limited to one or two per date, depending on task type. We do not stack multiple dots — dual-dot logic is applied only when both weekly and one-time tasks fall on the same day.
+
+## Screenshots
+<details>
+  <summary>Click to view screenshots</summary>
+  ![](screenshots/01_list_view.jpg)
+  ![](screenshots/02_sort_options.jpg)
+  ![](screenshots/03_top_nav_options.jpg)
+  ![](screenshots/04_new_task.jpg)
+  ![](screenshots/05_edit_task.jpg)
+  ![](screenshots/06_notification.jpg)
+  ![](screenshots/07_calendar_view.jpg)
+  ![](screenshots/08_calendar_view_2.jpg)
+</details>
+
+## Download
+Download here:  
+**[TaskMate v1.0.0 Release APK](app/release/TaskMate_v1.0.0_release.apk)**  
+> Works on Android 8.0 (API 26) and above. After installing, open the app and allow notifications when prompted.
