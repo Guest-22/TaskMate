@@ -9,7 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 // Adapter class to connect Task data with RecyclerView items.
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
@@ -40,7 +44,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         // Set the task details into the corresponding TextViews.
         holder.txtTitle.setText(task.getTitle());
         holder.txtDescription.setText(task.getDescription());
-        holder.txtDueDate.setText("Due on: " + task.getDate());
+        holder.txtDueDate.setText(formatDate(task.getDate())); // Format date for display.
         holder.txtDueTime.setText(task.getTime());
 
         Context context = holder.itemView.getContext();
@@ -64,6 +68,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
             context.startActivity(intent);
         });
+    }
+
+    // Helper method to format date from yyyy-MM-dd to MMMM dd, yyyy.
+    private String formatDate(String rawDate) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()); // Input format.
+            Date date = inputFormat.parse(rawDate); // Parse raw date.
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()); // Output format.
+            return outputFormat.format(date); // Return formatted date.
+        } catch (ParseException e) {
+            return rawDate; // Fallback to raw date if parsing fails.
+        }
     }
 
     // Returns the total number of items in the list.
