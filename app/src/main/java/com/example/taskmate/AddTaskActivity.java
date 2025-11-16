@@ -27,9 +27,15 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
-    // FOR SQLITE DB DEBUGGING PURPOSES IMPORT THIS PERMISSION INSIDE (AndroidManifest.xml).
-    // <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    /* FOR SQLITE DB DEBUGGING PURPOSES IMPORT THIS PERMISSION INSIDE (AndroidManifest.xml).
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    ADDITIONALLY, ADD THESE IMPORTS INSIDE THIS CLASS.
+    import java.io.File;
+    import java.io.IOException;
+    import java.nio.file.Files;
+    import java.nio.file.StandardCopyOption;
+    import android.os.Environment; */
 
     // Requesting for notification permission (Unique ID per permission req).
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
@@ -69,11 +75,11 @@ public class AddTaskActivity extends AppCompatActivity {
         rbWeekly = findViewById(R.id.rbWeekly);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btnDelete);
-        rbOneTime.setChecked(true); // Automatically sets one-time as default selected option
+        rbOneTime.setChecked(true); // Automatically sets one-time as default selected option.
 
         /* -------------------------------------------------------------------------------------------------------------------------
         // DEBUGGING SQLITE: MUST BE HIDDEN BEFORE APP LAUNCH.
-        btnExportDB = findViewById(R.id.btnExportDB); // Export SQLiteDB button
+        btnExportDB = findViewById(R.id.btnExportDB); // Export SQLiteDB button.
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -124,7 +130,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
                 int selectedId = rgSchedType.getCheckedRadioButtonId();
                 String newScheduleType = (selectedId == rbOneTime.getId()) ? "One-time" : "Weekly";
-                boolean isWeekly = newScheduleType.equalsIgnoreCase("Weekly"); //
+                boolean isWeekly = newScheduleType.equalsIgnoreCase("Weekly");
 
                 if (newTitle.isEmpty() || newDescription.isEmpty() || newDate.isEmpty() || newTime.isEmpty()) {
                     showToast("Please fill in all fields");
@@ -134,7 +140,7 @@ public class AddTaskActivity extends AppCompatActivity {
                     // Updates task in DB.
                     dbHelper.updateTask(taskId, newTitle, newDescription, newDate, newTime, newScheduleType);
 
-                    // Cancel old alarm and schedule new one using same taskId
+                    // Cancel old alarm and schedule new one using same taskId.
                     AlarmScheduler.cancelAlarm(this, taskId);
                     AlarmScheduler.scheduleAlarm(this, taskId, newTitle, newDescription, newDate, newTime, isWeekly);
 

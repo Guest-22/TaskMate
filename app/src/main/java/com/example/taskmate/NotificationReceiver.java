@@ -66,11 +66,14 @@ public class NotificationReceiver extends BroadcastReceiver {
         TaskDBHelper dbHelper = new TaskDBHelper(context);
         String scheduleType = dbHelper.getScheduleType(taskId);
 
+        // Update: Automatically deletes one-time task after due.
         if ("One-time".equalsIgnoreCase(scheduleType)) {
             AlarmScheduler.cancelAlarm(context, taskId);
-            LogHelper.d("NotifReceiver", "One-time alarm canceled for taskId=" + taskId);
+            dbHelper.deleteTask(taskId); // Removes one-time task from DB.
+            LogHelper.d("NotifReceiver", "One-time alarm canceled and task deleted for taskId=" + taskId);
         }
 
+        // Reschedules weekly task (7 days advance).
         else if ("Weekly".equalsIgnoreCase(scheduleType)) {
             try {
                 String lastDate = dbHelper.getTaskDate(taskId);
