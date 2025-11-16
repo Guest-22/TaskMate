@@ -35,6 +35,7 @@ TaskMate uses color-coded visuals to represent task urgency and type across both
 
 ## Download
 Download here:  
-**[TaskMate v1.0.0 (Release APK)](app/release/)**  
-**[Download via itch.io](https://guest-22.itch.io/taskmate)**
+- **[TaskMate v1.0.0 (Release APK)](https://github.com/Guest-22/TaskMate/releases/tag/v1.0.0)**
+- **[TaskMate v1.1.0 (Release APK)](https://github.com/Guest-22/TaskMate/releases/tag/v1.1.0)**
+- **[Download via itch.io](https://guest-22.itch.io/taskmate)**
 > Works on Android 8.0 (API 26) and above. After installing, open the app and allow notifications when prompted.
